@@ -4,6 +4,46 @@ All notable changes to AI Core will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-01-25
+
+### Fixed
+- **OpenAI API compliance**: `_openai_complete()` giờ tuân thủ 100% OpenAI API docs
+  - Thêm `stream: False` explicit parameter
+  - Response validation trước khi parse (check choices, message, content)
+  - Parse OpenAI error messages correctly từ response JSON
+  - Better error handling: HTTPStatusError, TimeoutException với messages rõ ràng
+  - Default values cho usage khi API không trả về
+
+- **Local model API improvements**: `_local_complete()` enhanced cho LM Studio/Ollama/vLLM
+  - Thêm `stream: False` và proper headers
+  - Minimum timeout 60s (local models chậm hơn cloud)
+  - ConnectError handling với helpful message "is the server running?"
+  - Response validation đầy đủ như OpenAI
+  - Specific error messages cho từng error type
+
+### Improved
+- Error messages giờ rõ ràng hơn, giúp debug nhanh
+- Validate response structure trước khi access fields (tránh KeyError)
+- Timeout messages nhắc user check model loaded
+
+## [1.1.1] - 2026-01-25
+
+### Fixed
+- Local model endpoint confirmed using `/v1/chat/completions` (OpenAI-compatible)
+- Full support for LM Studio, Ollama, vLLM, llama.cpp
+
+### Changed
+- Clarified **Hybrid Architecture** in documentation
+- AI Core = Framework (core logic) + Model Abstraction (flexible providers)
+- Core logic independent: context/persona/prompt/output
+- Model layer: abstraction cho nhiều providers
+
+### Documentation
+- README.md: Thêm hybrid approach explanation
+- QUICK_START.md: LM Studio default port 1234
+- .env.example: Specific configs cho LM Studio/Ollama/vLLM
+- CODEBASE_ANALYSIS.md: Clarify architecture design
+
 ## [1.1.0] - 2026-01-25
 
 ### Added

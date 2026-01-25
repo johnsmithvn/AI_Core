@@ -1,6 +1,8 @@
 # AI CORE
 
-Conversational AI với tính cách và nhận thức ngữ cảnh.
+**Flexible Conversational AI Framework** với tính cách và nhận thức ngữ cảnh.
+
+> 🎯 **Hybrid Approach**: Framework linh hoạt - dùng external LLMs (OpenAI/Anthropic) hoặc local models (LM Studio/Ollama).
 
 ## 🎯 Đặc điểm
 
@@ -8,6 +10,7 @@ Conversational AI với tính cách và nhận thức ngữ cảnh.
 - **Trung thực**: Không bịa kiến thức, thừa nhận khi không biết
 - **Thông minh**: Tự nhận biết ngữ cảnh để điều chỉnh giọng điệu
 - **Mở rộng**: Dễ dàng thêm tools, models, và knowledge
+- **Ổn định**: OpenAI API compliant với robust error handling
 
 ## 🏗️ Kiến trúc
 

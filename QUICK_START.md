@@ -59,12 +59,17 @@ ANTHROPIC_API_KEY=sk-ant-your-key-here
 ANTHROPIC_MODEL=claude-3-sonnet-20240229
 ```
 
-**OPTION 3: Local Model (llama.cpp/vLLM/Ollama)**
+**OPTION 3: Local Model (LM Studio/Ollama/vLLM)**
 ```bash
 MODEL_PROVIDER=local
-LOCAL_MODEL_URL=http://localhost:8080
-LOCAL_MODEL_NAME=llama-3-8b
+LOCAL_MODEL_URL=http://localhost:1234  # LM Studio
+LOCAL_MODEL_NAME=mistral-7b
+
+# Ollama: LOCAL_MODEL_URL=http://localhost:11434
+# vLLM: LOCAL_MODEL_URL=http://localhost:8080
 ```
+
+**Lưu ý**: Local models dùng OpenAI-compatible API (`/v1/chat/completions`)
 
 **OPTION 4: Mock (default - no API needed)**
 ```bash

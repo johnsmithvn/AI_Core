@@ -94,41 +94,75 @@ class ModelClient:
         temperature: float,
         max_tokens: Optional[int]
     ) -> Dict[str, Any]:
-        """OpenAI API completion"""
+        """
+        OpenAI API completion using Chat Completions endpoint.
+        Docs: https://platform.openai.com/docs/api-reference/chat/create
+        """
         if not self.api_key:
             raise ValueError("OpenAI API key not provided")
         
+        # OpenAI Chat Completions endpoint
         url = self.base_url or "https://api.openai.com/v1/chat/completions"
         
+        # Build request payload according to OpenAI API spec
         payload = {
             "model": self.model_name,
             "messages": messages,
-            "temperature": temperature
+            "temperature": temperature,
+            "stream": False  # Explicitly disable streaming
         }
         
+        # Optional parameters
         if max_tokens:
             payload["max_tokens"] = max_tokens
         
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(
-                url,
-                json=payload,
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
-                }
-            )
-            response.raise_for_status()
-            data = response.json()
-        
-        choice = data["choices"][0]
-        
-        return {
-            "content": choice["message"]["content"],
-            "model": data["model"],
-            "usage": data["usage"],
-            "finish_reason": choice["finish_reason"]
+        # Headers according to OpenAI docs
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
         }
+        
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(url, json=payload, headers=headers)
+                response.raise_for_status()
+                data = response.json()
+            
+            # Parse response according to OpenAI format
+            if not data.get("choices") or len(data["choices"]) == 0:
+                raise ValueError("No choices returned from OpenAI API")
+            
+            choice = data["choices"][0]
+            message = choice.get("message", {})
+            
+            if not message.get("content"):
+                raise ValueError("No content in OpenAI response")
+            
+            return {
+                "content": message["content"],
+                "model": data.get("model", self.model_name),
+                "usage": data.get("usage", {
+                    "prompt_tokens": 0,
+                    "completion_tokens": 0,
+                    "total_tokens": 0
+                }),
+                "finish_reason": choice.get("finish_reason", "stop")
+            }
+            
+        except httpx.HTTPStatusError as e:
+            # Parse OpenAI error response
+            try:
+                error_data = e.response.json()
+                error_msg = error_data.get("error", {}).get("message", str(e))
+            except:
+                error_msg = str(e)
+            raise ValueError(f"OpenAI API error: {error_msg}")
+        
+        except httpx.TimeoutException:
+            raise ValueError(f"OpenAI API timeout after {self.timeout}s")
+        
+        except Exception as e:
+            raise ValueError(f"OpenAI API request failed: {str(e)}")
     
     async def _anthropic_complete(
         self,
@@ -189,36 +223,82 @@ class ModelClient:
         temperature: float,
         max_tokens: Optional[int]
     ) -> Dict[str, Any]:
-        """Local model completion (llama.cpp, vLLM, etc.)"""
+        """
+        Local model completion using OpenAI-compatible API.
+        Supports: LM Studio, Ollama, vLLM, llama.cpp server
+        Endpoint: /v1/chat/completions
+        """
         if not self.base_url:
             raise ValueError("Base URL required for local model")
         
-        # Assume OpenAI-compatible API
+        # Build OpenAI-compatible request payload
         payload = {
             "model": self.model_name,
             "messages": messages,
-            "temperature": temperature
+            "temperature": temperature,
+            "stream": False  # Explicitly disable streaming
         }
         
+        # Optional parameters
         if max_tokens:
             payload["max_tokens"] = max_tokens
         
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.post(
-                f"{self.base_url}/v1/chat/completions",
-                json=payload
-            )
-            response.raise_for_status()
-            data = response.json()
-        
-        choice = data["choices"][0]
-        
-        return {
-            "content": choice["message"]["content"],
-            "model": data.get("model", self.model_name),
-            "usage": data.get("usage", {}),
-            "finish_reason": choice.get("finish_reason", "stop")
+        # Headers for OpenAI-compatible API
+        headers = {
+            "Content-Type": "application/json"
         }
+        
+        # Use longer timeout for local models (may be slower)
+        timeout = max(self.timeout, 60.0)
+        
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(
+                    f"{self.base_url}/v1/chat/completions",
+                    json=payload,
+                    headers=headers
+                )
+                response.raise_for_status()
+                data = response.json()
+            
+            # Parse OpenAI-compatible response
+            if not data.get("choices") or len(data["choices"]) == 0:
+                raise ValueError("No choices returned from local model API")
+            
+            choice = data["choices"][0]
+            message = choice.get("message", {})
+            
+            if not message.get("content"):
+                raise ValueError("No content in local model response")
+            
+            return {
+                "content": message["content"],
+                "model": data.get("model", self.model_name),
+                "usage": data.get("usage", {
+                    "prompt_tokens": 0,
+                    "completion_tokens": 0,
+                    "total_tokens": 0
+                }),
+                "finish_reason": choice.get("finish_reason", "stop")
+            }
+            
+        except httpx.HTTPStatusError as e:
+            # Parse error response
+            try:
+                error_data = e.response.json()
+                error_msg = error_data.get("error", {}).get("message", str(e))
+            except:
+                error_msg = str(e)
+            raise ValueError(f"Local model API error: {error_msg}")
+        
+        except httpx.TimeoutException:
+            raise ValueError(f"Local model timeout after {timeout}s - model may not be loaded")
+        
+        except httpx.ConnectError:
+            raise ValueError(f"Cannot connect to {self.base_url} - is the server running?")
+        
+        except Exception as e:
+            raise ValueError(f"Local model request failed: {str(e)}")
     
     def set_mock_response(self, response: str) -> None:
         """Set mock response for testing"""

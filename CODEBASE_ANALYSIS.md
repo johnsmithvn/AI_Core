@@ -247,14 +247,14 @@ sessions = {
 
 ### 3. MODEL CLIENT (app/model/) ⭐⭐⭐⭐⭐
 
-#### client.py (220 lines)
-**Vai trò**: LLM provider abstraction
+#### client.py (260+ lines)
+**Vai trò**: LLM provider abstraction với full OpenAI API compliance
 
 **4 Providers**:
 1. **Mock**: Testing, no API needed
-2. **OpenAI**: GPT-3.5, GPT-4, etc.
+2. **OpenAI**: GPT-3.5, GPT-4 (100% API compliant)
 3. **Anthropic**: Claude models
-4. **Local**: llama.cpp, vLLM, Ollama
+4. **Local**: LM Studio, Ollama, vLLM, llama.cpp (OpenAI-compatible)
 
 **Interface**:
 ```python
@@ -265,7 +265,32 @@ async def complete(
 ) -> Dict[str, Any]
 ```
 
-**Quan trọng**: ⭐⭐⭐⭐⭐ (Model agnostic - easy to switch)
+**Key Improvements (v1.1.2)**:
+- ✅ **OpenAI API compliance**: 100% tuân thủ docs
+  * Explicit `stream: False` parameter
+  * Response validation trước khi parse
+  * Parse error messages từ API JSON
+  * HTTPStatusError, TimeoutException handling
+  
+- ✅ **Local model enhancements**:
+  * Minimum 60s timeout (local slower than cloud)
+  * ConnectError detection ("is server running?")
+  * Full response validation như OpenAI
+  * Helpful error messages cho debugging
+
+**Error Handling**:
+```python
+try:
+    # API call
+except httpx.HTTPStatusError as e:
+    # Parse API error message
+except httpx.TimeoutException:
+    # Timeout with duration info
+except httpx.ConnectError:
+    # Server not running? (local only)
+```
+
+**Quan trọng**: ⭐⭐⭐⭐⭐ (Production-ready với robust error handling)
 
 **Cách thêm provider mới**:
 ```python

@@ -178,9 +178,15 @@ Những phần này KHÔNG bắt buộc, có thể làm sau:
 
 **Build Time**: ~40 minutes  
 **Files Created**: 33 files (+ .env.example)  
-**Lines of Code**: ~3,500+ lines  
+**Lines of Code**: ~3,700+ lines  
 **Tests**: 4/4 passed  
 **Documentation**: Complete  
+
+**Latest Updates (v1.1.2)**:
+- ✅ OpenAI API 100% compliance
+- ✅ Enhanced error handling (HTTPStatusError, TimeoutException, ConnectError)
+- ✅ Response validation trước khi parse
+- ✅ Local model improvements (60s timeout, better errors)
 
 **Delivered**:
 - ✅ AI Core engine với 9-step pipeline
