@@ -60,7 +60,8 @@ AI_core/
 ├── 📄 main.py                      # Entry point (uvicorn server)
 ├── 📄 test_core.py                 # Test script (4 test cases)
 ├── 📄 example_conversation.py      # Demo conversation script
-├── 📄 requirements.txt             # Python dependencies (8 packages)
+├── 📄 requirements.txt             # Python dependencies (9 packages)
+├── 📄 .env.example                 # Environment config template
 ├── 📄 .gitignore                   # Git ignore rules
 │
 ├── 📖 README.md                    # ⭐ Main documentation
@@ -170,9 +171,9 @@ GET  /admin/stats               # System stats
 ```
 
 ### Key Files to Modify
+- **Change model provider**: `.env` (MODEL_PROVIDER)
 - **Add new persona**: `app/config/persona.yaml`
 - **Add context rules**: `app/config/rules.yaml`
-- **Change model**: `app/api/chat.py` (line 45)
 - **Add new tool**: `app/tools/base.py`
 
 ---
@@ -219,6 +220,7 @@ pyyaml==6.0.1           # YAML parser
 structlog==24.1.0       # Structured logging
 httpx==0.26.0           # HTTP client
 python-multipart==0.0.6 # Form data
+python-dotenv==1.0.0    # Environment variables
 ```
 
 ---

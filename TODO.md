@@ -177,7 +177,7 @@ Những phần này KHÔNG bắt buộc, có thể làm sau:
 ### ✅ CORE PROJECT: 100% COMPLETE
 
 **Build Time**: ~40 minutes  
-**Files Created**: 32 files  
+**Files Created**: 33 files (+ .env.example)  
 **Lines of Code**: ~3,500+ lines  
 **Tests**: 4/4 passed  
 **Documentation**: Complete  

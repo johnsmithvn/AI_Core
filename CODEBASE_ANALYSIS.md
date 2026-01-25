@@ -316,7 +316,7 @@ class MyTool(BaseTool):
 
 ### 5. REST API (app/api/) ⭐⭐⭐⭐
 
-#### chat.py (215 lines)
+#### chat.py (230 lines)
 **Vai trò**: FastAPI endpoints
 
 **7 Endpoints**:
@@ -333,6 +333,9 @@ class MyTool(BaseTool):
 - Pydantic validation
 - Error handling
 - Logging integrated
+- **Environment-based provider selection** (NEW)
+  - MODEL_PROVIDER env var: mock/openai/anthropic/local
+  - Auto-loads config from .env file
 
 **Quan trọng**: ⭐⭐⭐⭐ (User interface)
 

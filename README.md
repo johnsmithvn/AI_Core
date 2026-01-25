@@ -29,40 +29,23 @@ Output Processor (xử lý output)
 Response
 ```
 
-## 📦 Cài đặt
+## 📦 Quick Setup
 
 ```bash
-# Clone repo
+# Clone & setup
 git clone <repo-url>
 cd ai-core
 
-# Tạo virtual environment (khuyến nghị)
+# Install (see QUICK_START.md for details)
 python -m venv venv
-
-# Kích hoạt venv
-# Windows:
 venv\Scripts\activate
-# Linux/Mac:
-# source venv/bin/activate
-
-# Cài dependencies (trong venv)
 pip install -r requirements.txt
+
+# Run
+python main.py  # → http://localhost:8000
 ```
 
-**Lưu ý**: Luôn activate venv trước khi chạy:
-```bash
-venv\Scripts\activate  # Windows
-python main.py
-```
-
-## 🚀 Chạy
-
-```bash
-# Start API server
-python main.py
-
-# Server sẽ chạy tại http://localhost:8000
-```
+📘 **[→ Đọc QUICK_START.md](QUICK_START.md)** để biết chi tiết setup với OpenAI/Anthropic/Local models
 
 ## 📡 API Endpoints
 
@@ -93,55 +76,26 @@ Xóa session
 
 AI tự động chọn persona dựa trên ngữ cảnh.
 
-## 🛠️ Cấu hình
+## 🛠️ Configuration
 
-Chỉnh sửa file trong `app/config/`:
-- `persona.yaml` - Cấu hình tính cách
-- `rules.yaml` - Quy tắc xử lý
-- `system.yaml` - Cấu hình hệ thống
+### Model Providers
+Mặc định: **Mock** (testing, no API key)  
+Production: **OpenAI** | **Anthropic** | **Local**
 
-## 🔧 Chọn Model Provider
-
-Mặc định dùng **mock model** để test. Để dùng model thật, chỉnh sửa file `.env`:
-
-### Bước 1: Copy file config mẫu
 ```bash
+# Setup trong 3 bước:
 cp .env.example .env
-```
-
-### Bước 2: Chọn provider trong `.env`
-
-**Option 1: OpenAI (GPT-4)**
-```bash
-MODEL_PROVIDER=openai
-OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4  # hoặc gpt-3.5-turbo
-```
-
-**Option 2: Anthropic (Claude)**
-```bash
-MODEL_PROVIDER=anthropic
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-ANTHROPIC_MODEL=claude-3-sonnet-20240229
-```
-
-**Option 3: Local Model (llama.cpp/vLLM/Ollama)**
-```bash
-MODEL_PROVIDER=local
-LOCAL_MODEL_URL=http://localhost:8080
-LOCAL_MODEL_NAME=llama-3-8b
-```
-
-**Option 4: Mock (default)**
-```bash
-MODEL_PROVIDER=mock
-```
-
-### Bước 3: Restart server
-```bash
+# Edit .env → chọn provider
 python main.py
-# Log sẽ hiện: "AI Core initialized with provider: openai"
 ```
+
+📘 **[→ Xem QUICK_START.md](QUICK_START.md)** để config chi tiết với từng provider
+
+### Personas & Rules
+Edit config files trong `app/config/`:
+- `persona.yaml` - 3 personas (Casual/Technical/Cautious)
+- `rules.yaml` - Context detection rules
+- `system.yaml` - System settings
 
 ## 📚 Thư mục
 
@@ -162,14 +116,30 @@ ai-core/
 ## 🧪 Testing
 
 ```bash
-# Test với mock model
-python main.py
+# Quick test với mock model
+python test_core.py  # → 4/4 tests pass
 
-# Gửi request test
+# Test API
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "Xin chào!"}'
 ```
+
+📘 **[→ Xem QUICK_START.md](QUICK_START.md)** cho examples với Python, custom tools, personas
+
+---
+
+## 📚 Documentation
+
+| File | Purpose |
+|------|---------|
+| **[QUICK_START.md](QUICK_START.md)** | Step-by-step setup guide |
+| **[CODEBASE_ANALYSIS.md](CODEBASE_ANALYSIS.md)** | Technical deep dive |
+| **[STRUCTURE.md](STRUCTURE.md)** | Project structure |
+| **[CHANGELOG.md](CHANGELOG.md)** | Version history |
+| **[TODO.md](TODO.md)** | Progress tracking |
+
+---
 
 ## 📝 License
 

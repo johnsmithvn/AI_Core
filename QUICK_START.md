@@ -78,10 +78,6 @@ python main.py
 # Log sẽ hiện: "AI Core initialized with provider: openai"
 ```
 
-```bash
-python main.py
-```
-
 ---
 
 ## 3. Test API với curl
@@ -104,7 +100,7 @@ curl http://localhost:8000/admin/stats
 
 ---
 
-## 6. Test API với Python
+## 4. Test API với Python
 
 ```python
 import requests
@@ -171,7 +167,7 @@ asyncio.run(main())
 
 ---
 
-## 6. Tùy chỉnh Personas
+## 5. Tùy chỉnh Personas
 
 Edit `app/config/persona.yaml`:
 
@@ -193,7 +189,7 @@ Sau đó persona selector sẽ tự động detect và dùng.
 
 ---
 
-## 7. Tùy chỉnh Context Detection
+## 6. Tùy chỉnh Context Detection
 
 Edit `app/config/rules.yaml`:
 
@@ -208,7 +204,7 @@ context_detection:
 
 ---
 
-## 8. Thêm Tool mới
+## 7. Thêm Tool mới
 
 ```python
 # app/tools/my_tool.py
