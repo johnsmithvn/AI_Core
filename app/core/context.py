@@ -1,0 +1,144 @@
+"""Context Analyzer - Phân tích ngữ cảnh"""
+from typing import Literal, Dict, Any
+from app.memory.schema import Message
+import yaml
+from pathlib import Path
+
+
+ContextType = Literal["casual", "technical", "cautious"]
+
+
+class ContextAnalyzer:
+    """
+    Phân tích ngữ cảnh từ input của user.
+    Quyết định user đang:
+    - chat chơi
+    - hỏi kỹ thuật
+    - cần tìm kiến thức
+    """
+    
+    def __init__(self, rules_path: str = "app/config/rules.yaml"):
+        self.rules = self._load_rules(rules_path)
+    
+    def _load_rules(self, path: str) -> dict:
+        """Load context detection rules"""
+        rules_file = Path(path)
+        if not rules_file.exists():
+            return self._default_rules()
+        
+        with open(rules_file, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    
+    @staticmethod
+    def _default_rules() -> dict:
+        """Default rules if config not found"""
+        return {
+            "context_detection": {
+                "casual_chat": {
+                    "keywords": ["chơi", "cười", "đùa", "haha", "lol"],
+                    "confidence_threshold": 0.7
+                },
+                "technical_question": {
+                    "keywords": ["code", "debug", "lỗi", "làm sao", "giải thích"],
+                    "confidence_threshold": 0.6
+                },
+                "need_knowledge": {
+                    "keywords": ["sách", "truyện", "tài liệu", "kinh nghiệm", "câu nói"],
+                    "confidence_threshold": 0.5
+                }
+            }
+        }
+    
+    def analyze(self, user_input: str, history: list[Message] = None) -> Dict[str, Any]:
+        """
+        Phân tích ngữ cảnh từ input.
+        
+        Returns:
+            {
+                "context_type": "casual" | "technical" | "cautious",
+                "confidence": 0.0-1.0,
+                "needs_knowledge": bool,
+                "indicators": list[str]
+            }
+        """
+        text_lower = user_input.lower()
+        detection = self.rules.get("context_detection", {})
+        
+        # Check each context type
+        casual_score = self._calculate_score(
+            text_lower,
+            detection.get("casual_chat", {})
+        )
+        
+        technical_score = self._calculate_score(
+            text_lower,
+            detection.get("technical_question", {})
+        )
+        
+        knowledge_score = self._calculate_score(
+            text_lower,
+            detection.get("need_knowledge", {})
+        )
+        
+        # Determine context type
+        scores = {
+            "casual": casual_score,
+            "technical": technical_score,
+            "cautious": knowledge_score
+        }
+        
+        context_type = max(scores, key=scores.get)
+        confidence = scores[context_type]
+        
+        # Check if knowledge retrieval needed
+        needs_knowledge = knowledge_score > detection.get(
+            "need_knowledge", {}
+        ).get("confidence_threshold", 0.5)
+        
+        # Collect indicators
+        indicators = self._get_indicators(text_lower, detection)
+        
+        return {
+            "context_type": context_type,
+            "confidence": confidence,
+            "needs_knowledge": needs_knowledge,
+            "indicators": indicators,
+            "scores": scores
+        }
+    
+    def _calculate_score(self, text: str, config: dict) -> float:
+        """Calculate matching score for a context type"""
+        keywords = config.get("keywords", [])
+        if not keywords:
+            return 0.0
+        
+        matches = sum(1 for kw in keywords if kw in text)
+        return matches / len(keywords)
+    
+    def _get_indicators(self, text: str, detection: dict) -> list[str]:
+        """Get matched keyword indicators"""
+        indicators = []
+        
+        for context_name, config in detection.items():
+            keywords = config.get("keywords", [])
+            matched = [kw for kw in keywords if kw in text]
+            indicators.extend(matched)
+        
+        return indicators
+    
+    def should_refuse(self, user_input: str, context: Dict[str, Any]) -> tuple[bool, str]:
+        """
+        Quyết định có nên từ chối trả lời không.
+        
+        Returns:
+            (should_refuse: bool, reason: str)
+        """
+        # Nếu thiếu context và hỏi về kiến thức cụ thể
+        if context.get("needs_knowledge") and context.get("confidence", 0) < 0.3:
+            return (True, "Bạn cần cung cấp thêm thông tin để tôi hiểu rõ hơn")
+        
+        # Nếu câu hỏi mơ hồ
+        if len(user_input.strip()) < 5:
+            return (True, "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?")
+        
+        return (False, "")

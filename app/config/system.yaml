@@ -1,0 +1,31 @@
+# SYSTEM CONFIGURATION
+
+# Model settings
+model:
+  default_provider: "openai"  # openai, anthropic, local
+  default_model: "gpt-4"
+  timeout: 30
+  max_retries: 3
+
+# Memory settings
+memory:
+  short_term_limit: 20  # số lượng message giữ trong session
+  long_term_enabled: true
+  database_path: "data/memory.db"
+  
+# Logging
+logging:
+  level: "INFO"
+  format: "json"
+  output: "data/logs.db"
+
+# API settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_enabled: true
+  
+# Session settings
+session:
+  timeout: 3600  # 1 hour
+  cleanup_interval: 300  # 5 minutes
