@@ -49,13 +49,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize AI Core (using mock model for now)
-# model_client = ModelClient(provider="mock")
-model_client = ModelClient(
-    provider="openai",
-    api_key=os.getenv("OPENAI_API_KEY"),
-    model_name="gpt-4"  # hoặc "gpt-3.5-turbo"
-)
+# Initialize AI Core with provider selection
+# Set MODEL_PROVIDER in .env: mock, openai, anthropic, or local
+provider = os.getenv("MODEL_PROVIDER", "mock").lower()
+
+if provider == "openai":
+    model_client = ModelClient(
+        provider="openai",
+        api_key=os.getenv("OPENAI_API_KEY"),
+        model_name=os.getenv("OPENAI_MODEL", "gpt-4")
+    )
+elif provider == "anthropic":
+    model_client = ModelClient(
+        provider="anthropic",
+        api_key=os.getenv("ANTHROPIC_API_KEY"),
+        model_name=os.getenv("ANTHROPIC_MODEL", "claude-3-sonnet-20240229")
+    )
+elif provider == "local":
+    model_client = ModelClient(
+        provider="local",
+        base_url=os.getenv("LOCAL_MODEL_URL", "http://localhost:8080"),
+        model_name=os.getenv("LOCAL_MODEL_NAME", "llama-3-8b")
+    )
+else:  # mock (default)
+    model_client = ModelClient(provider="mock")
+    
+logger.info(f"AI Core initialized with provider: {provider}")
 ai_core = AICore(model_client=model_client)
 
 

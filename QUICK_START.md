@@ -35,35 +35,48 @@ python test_core.py
 
 ---
 
-## 2. Chạy với OpenAI
+## 2. Chọn Model Provider (OpenAI/Anthropic/Local)
 
-### Bước 1: Set API key
+### Bước 1: Copy file config mẫu
 
-Tạo file `.env`:
 ```bash
+cp .env.example .env
+```
+
+### Bước 2: Edit `.env` để chọn provider
+
+**OPTION 1: OpenAI (GPT-4)**
+```bash
+MODEL_PROVIDER=openai
 OPENAI_API_KEY=sk-your-key-here
+OPENAI_MODEL=gpt-4  # hoặc gpt-3.5-turbo
 ```
 
-### Bước 2: Sửa `app/api/chat.py`
-
-```python
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Thay dòng này:
-# model_client = ModelClient(provider="mock")
-
-# Bằng:
-model_client = ModelClient(
-    provider="openai",
-    api_key=os.getenv("OPENAI_API_KEY"),
-    model_name="gpt-4"  # hoặc "gpt-3.5-turbo"
-)
+**OPTION 2: Anthropic (Claude)**
+```bash
+MODEL_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+ANTHROPIC_MODEL=claude-3-sonnet-20240229
 ```
 
-### Bước 3: Restart server (python-dotenv đã có trong requirements.txt)
+**OPTION 3: Local Model (llama.cpp/vLLM/Ollama)**
+```bash
+MODEL_PROVIDER=local
+LOCAL_MODEL_URL=http://localhost:8080
+LOCAL_MODEL_NAME=llama-3-8b
+```
+
+**OPTION 4: Mock (default - no API needed)**
+```bash
+MODEL_PROVIDER=mock
+```
+
+### Bước 3: Restart server
+
+```bash
+python main.py
+# Log sẽ hiện: "AI Core initialized with provider: openai"
+```
 
 ```bash
 python main.py
@@ -71,35 +84,7 @@ python main.py
 
 ---
 
-## 3. Chạy với Anthropic (Claude)
-
-### Sửa `app/api/chat.py`:
-
-```python
-model_client = ModelClient(
-    provider="anthropic",
-    api_key=os.getenv("ANTHROPIC_API_KEY"),
-    model_name="claude-3-sonnet-20240229"
-)
-```
-
----
-
-## 4. Chạy với Local Model (llama.cpp / vLLM)
-
-### Nếu bạn có local model server chạy tại http://localhost:8080:
-
-```python
-model_client = ModelClient(
-    provider="local",
-    base_url="http://localhost:8080",
-    model_name="llama-3-8b"
-)
-```
-
----
-
-## 5. Test API với curl
+## 3. Test API với curl
 
 ```bash
 # Chat
@@ -147,9 +132,9 @@ response = requests.post(
 print(response.json()["response"])
 ```
 
----
+---4
 
-## 7. Sử dụng trong code
+## 5. Sử dụng trong code
 
 ```python
 import asyncio
@@ -186,7 +171,7 @@ asyncio.run(main())
 
 ---
 
-## 8. Tùy chỉnh Personas
+## 6. Tùy chỉnh Personas
 
 Edit `app/config/persona.yaml`:
 
@@ -208,7 +193,7 @@ Sau đó persona selector sẽ tự động detect và dùng.
 
 ---
 
-## 9. Tùy chỉnh Context Detection
+## 7. Tùy chỉnh Context Detection
 
 Edit `app/config/rules.yaml`:
 
@@ -223,7 +208,7 @@ context_detection:
 
 ---
 
-## 10. Thêm Tool mới
+## 8. Thêm Tool mới
 
 ```python
 # app/tools/my_tool.py

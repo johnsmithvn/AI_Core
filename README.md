@@ -100,36 +100,47 @@ Chỉnh sửa file trong `app/config/`:
 - `rules.yaml` - Quy tắc xử lý
 - `system.yaml` - Cấu hình hệ thống
 
-## 🔧 Sử dụng model khác
+## 🔧 Chọn Model Provider
 
-Mặc định dùng mock model để test. Để dùng model thật:
+Mặc định dùng **mock model** để test. Để dùng model thật, chỉnh sửa file `.env`:
 
-```python
-from app.model import ModelClient
-from app.core import AICore
+### Bước 1: Copy file config mẫu
+```bash
+cp .env.example .env
+```
 
-# OpenAI
-model_client = ModelClient(
-    provider="openai",
-    api_key="your-key",
-    model_name="gpt-4"
-)
+### Bước 2: Chọn provider trong `.env`
 
-# Anthropic
-model_client = ModelClient(
-    provider="anthropic",
-    api_key="your-key",
-    model_name="claude-3-sonnet"
-)
+**Option 1: OpenAI (GPT-4)**
+```bash
+MODEL_PROVIDER=openai
+OPENAI_API_KEY=sk-your-key-here
+OPENAI_MODEL=gpt-4  # hoặc gpt-3.5-turbo
+```
 
-# Local model
-model_client = ModelClient(
-    provider="local",
-    base_url="http://localhost:8080",
-    model_name="llama-3-8b"
-)
+**Option 2: Anthropic (Claude)**
+```bash
+MODEL_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+ANTHROPIC_MODEL=claude-3-sonnet-20240229
+```
 
-ai = AICore(model_client=model)
+**Option 3: Local Model (llama.cpp/vLLM/Ollama)**
+```bash
+MODEL_PROVIDER=local
+LOCAL_MODEL_URL=http://localhost:8080
+LOCAL_MODEL_NAME=llama-3-8b
+```
+
+**Option 4: Mock (default)**
+```bash
+MODEL_PROVIDER=mock
+```
+
+### Bước 3: Restart server
+```bash
+python main.py
+# Log sẽ hiện: "AI Core initialized with provider: openai"
 ```
 
 ## 📚 Thư mục
