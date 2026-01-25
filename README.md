@@ -36,8 +36,23 @@ Response
 git clone <repo-url>
 cd ai-core
 
-# Install dependencies
+# Tạo virtual environment (khuyến nghị)
+python -m venv venv
+
+# Kích hoạt venv
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+# source venv/bin/activate
+
+# Cài dependencies (trong venv)
 pip install -r requirements.txt
+```
+
+**Lưu ý**: Luôn activate venv trước khi chạy:
+```bash
+venv\Scripts\activate  # Windows
+python main.py
 ```
 
 ## 🚀 Chạy
@@ -94,21 +109,21 @@ from app.model import ModelClient
 from app.core import AICore
 
 # OpenAI
-model = ModelClient(
+model_client = ModelClient(
     provider="openai",
     api_key="your-key",
     model_name="gpt-4"
 )
 
 # Anthropic
-model = ModelClient(
+model_client = ModelClient(
     provider="anthropic",
     api_key="your-key",
     model_name="claude-3-sonnet"
 )
 
 # Local model
-model = ModelClient(
+model_client = ModelClient(
     provider="local",
     base_url="http://localhost:8080",
     model_name="llama-3-8b"

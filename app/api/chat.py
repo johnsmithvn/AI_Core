@@ -8,6 +8,13 @@ import uuid
 from app.core import AICore
 from app.core.logging import setup_logging, get_logger
 from app.model import ModelClient
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+
 
 # Setup logging
 setup_logging(log_level="INFO", log_file="data/app.log")
@@ -43,7 +50,12 @@ app.add_middleware(
 )
 
 # Initialize AI Core (using mock model for now)
-model_client = ModelClient(provider="mock")
+# model_client = ModelClient(provider="mock")
+model_client = ModelClient(
+    provider="openai",
+    api_key=os.getenv("OPENAI_API_KEY"),
+    model_name="gpt-4"  # hoặc "gpt-3.5-turbo"
+)
 ai_core = AICore(model_client=model_client)
 
 

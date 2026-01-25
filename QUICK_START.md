@@ -1,5 +1,23 @@
 # 🚀 QUICK START GUIDE
 
+## 0. Setup Virtual Environment (Khuyến nghị)
+
+```bash
+# Tạo venv
+python -m venv venv
+
+# Kích hoạt
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
+
+# Cài dependencies
+pip install -r requirements.txt
+```
+
+**Sau này**: Luôn activate venv trước khi chạy bất kỳ lệnh nào.
+
+---
+
 ## 1. Chạy với Mock Model (Test ngay)
 
 ```bash
@@ -45,13 +63,7 @@ model_client = ModelClient(
 )
 ```
 
-### Bước 3: Install python-dotenv
-
-```bash
-pip install python-dotenv
-```
-
-### Bước 4: Restart server
+### Bước 3: Restart server (python-dotenv đã có trong requirements.txt)
 
 ```bash
 python main.py
