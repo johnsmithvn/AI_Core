@@ -44,11 +44,16 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 
+# Configure (optional - edit .env for custom port/provider)
+cp .env.example .env
+
 # Run
 python main.py  # → http://localhost:8000
 ```
 
 📘 **[→ Đọc QUICK_START.md](QUICK_START.md)** để biết chi tiết setup với OpenAI/Anthropic/Local models
+
+🔌 **[→ Xem API Reference](docs/API_REFERENCE.md)** để biết 7 endpoints có sẵn
 
 ## 📡 API Endpoints
 
@@ -137,10 +142,11 @@ curl -X POST http://localhost:8000/chat \
 | File | Purpose |
 |------|---------|
 | **[QUICK_START.md](QUICK_START.md)** | Step-by-step setup guide |
-| **[CODEBASE_ANALYSIS.md](CODEBASE_ANALYSIS.md)** | Technical deep dive |
-| **[STRUCTURE.md](STRUCTURE.md)** | Project structure |
+| **[API Reference](docs/API_REFERENCE.md)** | ⭐ Complete API documentation (7 endpoints) |
+| **[Codebase Analysis](docs/CODEBASE_ANALYSIS.md)** | Technical deep dive |
+| **[Project Structure](docs/STRUCTURE.md)** | Folder organization |
+| **[TODO](docs/TODO.md)** | Progress tracking |
 | **[CHANGELOG.md](CHANGELOG.md)** | Version history |
-| **[TODO.md](TODO.md)** | Progress tracking |
 
 ---
 

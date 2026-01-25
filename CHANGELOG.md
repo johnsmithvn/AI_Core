@@ -4,6 +4,29 @@ All notable changes to AI Core will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-01-25
+
+### Added
+- **Dynamic server configuration** via environment variables
+  - `API_HOST` - Configure listen address (default: 0.0.0.0)
+  - `API_PORT` - Configure port (default: 8000)
+  - `API_RELOAD` - Enable auto-reload for development (default: false)
+- **Complete API Documentation** - Created `docs/API_REFERENCE.md`
+  - 7 endpoints fully documented với examples
+  - Request/response schemas
+  - curl, Python, JavaScript examples
+  - Status codes và error handling
+- Improved startup logging với configuration display
+
+### Changed
+- `main.py` now reads config from `.env` file
+- More flexible deployment (Docker, cloud, local)
+- Documentation structure improved
+
+### Fixed
+- Hard-coded port 8000 → Now configurable
+- Missing API documentation
+
 ## [1.1.2] - 2026-01-25
 
 ### Fixed

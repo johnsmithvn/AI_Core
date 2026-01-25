@@ -21,11 +21,20 @@ pip install -r requirements.txt
 ## 1. Chạy với Mock Model (Test ngay)
 
 ```bash
-# Start server
+# Start server (default: port 8000)
 python main.py
 
-# Server sẽ chạy tại http://localhost:8000
+# Custom port
+API_PORT=9000 python main.py
+
+# Development mode (auto-reload)
+API_RELOAD=true python main.py
 ```
+
+Server sẽ chạy tại:
+- Default: `http://localhost:8000`
+- Custom: `http://localhost:{API_PORT}`
+- **API Docs**: `http://localhost:8000/docs` (Swagger UI)
 
 Hoặc test trực tiếp:
 
@@ -242,9 +251,11 @@ tool_router.register(MyTool())
 ## 📚 Xem thêm
 
 - [README.md](README.md) - Documentation đầy đủ
-- [BUILD_SUMMARY.md](BUILD_SUMMARY.md) - Tổng kết build
+- [API Reference](docs/API_REFERENCE.md) - ⭐ Complete API docs (7 endpoints)
+- [Codebase Analysis](docs/CODEBASE_ANALYSIS.md) - Technical deep dive
+- [Project Structure](docs/STRUCTURE.md) - Folder organization
+- [TODO](docs/TODO.md) - Progress tracking
 - [CHANGELOG.md](CHANGELOG.md) - Version history
-- [TODO.md](TODO.md) - Progress tracking
 
 ---
 
