@@ -1,7 +1,7 @@
 # 📂 AI CORE - PROJECT STRUCTURE
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-25
+**Version**: 1.1.3  
+**Last Updated**: 2026-01-26
 
 ---
 
@@ -46,7 +46,7 @@ AI_core/
 │
 ├── 📁 data/                        # Runtime data (gitignored)
 │   ├── app.log                     # Application logs
-│   └── ai_core.db                  # SQLite database
+│   └── memory.db                   # SQLite database
 │
 ├── 📁 tests/                       # Test files
 │   └── (test files here)
@@ -77,14 +77,16 @@ AI_core/
 ## 📊 FILE STATISTICS
 
 ### Source Code (app/)
-- **Total files**: 18 files
+- **Total files**: 19 Python files + 3 YAML files = 22 files
 - **Lines**: ~2,000 lines
 - **Languages**: Python, YAML
 
 ### Documentation
-- **Total files**: 6 files (.md)
-- **Lines**: ~2,000+ lines
-- **Purpose**: User guide, technical docs, tracking
+- **Total files**: 7 markdown files
+  - Root: 3 files (README.md, QUICK_START.md, CHANGELOG.md)
+  - docs/: 4 files (API_REFERENCE.md, CODEBASE_ANALYSIS.md, STRUCTURE.md, TODO.md)
+- **Lines**: ~2,500+ lines
+- **Purpose**: User guide, technical docs, API reference, tracking
 
 ### Configuration
 - **YAML files**: 3 files
@@ -199,7 +201,7 @@ GET  /admin/stats               # System stats
 
 ### Files cần cleanup định kỳ:
 - `data/app.log` - Logs (rotate khi > 100MB)
-- `data/ai_core.db` - Database (cleanup old memories)
+- `data/memory.db` - Database (cleanup old memories)
 - `tests/__pycache__/` - Python cache
 
 ### Files KHÔNG nên edit trực tiếp:
@@ -269,5 +271,5 @@ Core areas:
 ---
 
 **Project Status**: ✅ **PRODUCTION READY**  
-**Last Build**: 2026-01-25  
-**Version**: 1.0.0
+**Last Build**: 2026-01-26  
+**Version**: 1.1.3

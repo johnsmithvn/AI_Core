@@ -162,15 +162,17 @@ Không có
 
 Những phần này KHÔNG bắt buộc, có thể làm sau:
 
-27. Implement RAG/vector search cho knowledge retrieval
-28. Add more tools (web search, calculator, etc.)
-29. Add unit tests với pytest
-30. Add integration tests
-31. Implement logging với structlog
-32. Add metrics và monitoring
-33. Docker containerization
-34. CI/CD pipeline
-35. Documentation website
+29. Implement RAG/vector search cho knowledge retrieval
+30. Add more tools (web search, calculator, etc.)
+31. Add unit tests với pytest
+32. Add integration tests
+33. Add metrics và monitoring
+34. Docker containerization
+35. CI/CD pipeline
+36. Documentation website
+37. Multi-language support
+38. A/B testing framework
+39. Fine-tuning pipeline
 
 ## 🎉 PROJECT COMPLETION STATUS
 
@@ -214,18 +216,6 @@ Những phần này KHÔNG bắt buộc, có thể làm sau:
   * process_complete, cleanup_complete
 
 **Status**: 🚀 **PRODUCTION READY**
-
-## 📋 SẮP LÀM (OPTIONAL - MỞ RỘNG)
-
-21. Implement RAG/vector search cho knowledge retrieval
-22. Add more tools (web search, calculator, etc.)
-23. Add unit tests
-24. Add integration tests
-25. Implement logging với structlog
-26. Add metrics và monitoring
-27. Docker containerization
-28. CI/CD pipeline
-29. Documentation website
 
 ---
 Last updated: 2026-01-25 13:00
