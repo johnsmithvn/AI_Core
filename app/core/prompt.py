@@ -80,8 +80,10 @@ MỤC TIÊU CUỐI:
         
         messages = [{"role": "system", "content": system_prompt}]
         
-        # Add history
-        for msg in history:
+        # Add history (ensure alternating user/assistant pattern)
+        # Filter to only include complete user-assistant pairs
+        filtered_history = self._filter_history_for_alternating(history)
+        for msg in filtered_history:
             messages.append({
                 "role": msg.role,
                 "content": msg.content
@@ -128,6 +130,30 @@ MỤC TIÊU CUỐI:
             )
         
         return "\n".join(parts)
+    
+    def _filter_history_for_alternating(self, history: List[Message]) -> List[Message]:
+        """
+        Filter history to ensure proper alternating user/assistant pattern.
+        Rules:
+        - Must start with 'user' role
+        - Must alternate between user and assistant
+        - Remove any messages that break the pattern
+        """
+        if not history:
+            return []
+        
+        filtered = []
+        expected_role = "user"  # Always start with user
+        
+        for msg in history:
+            if msg.role == expected_role:
+                filtered.append(msg)
+                # Toggle expected role
+                expected_role = "assistant" if expected_role == "user" else "user"
+        
+        # If history ends with assistant (which is expected), keep it
+        # If it ends with user (incomplete pair), also keep it
+        return filtered
     
     def build_simple(self, user_input: str) -> List[Dict[str, str]]:
         """Build simple prompt without context (for quick testing)"""
