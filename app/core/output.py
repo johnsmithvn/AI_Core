@@ -78,7 +78,10 @@ class OutputProcessor:
             "behavior": persona.get("behavior"),  # normal | cautious
             "context_type": context.get("context_type"),
             "needs_knowledge": context.get("needs_knowledge"),
-            "confidence": context.get("confidence"),
+            # v2.1: Đổi tên để tránh hiểu nhầm
+            "signal_strength": context.get("signal_strength"),  # Mức tín hiệu keyword
+            "context_clarity": context.get("context_clarity"),  # True = rõ ràng
+            "confidence": context.get("confidence"),  # Legacy, = signal_strength
             "length": len(content),
             "word_count": word_count,
             "estimated_read_time": max(1, word_count // 200),  # minutes

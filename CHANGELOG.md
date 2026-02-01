@@ -4,6 +4,72 @@ All notable changes to AI Core will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-02-01
+
+### ⚠️ BREAKING CHANGES - Response Structure (UI cần cập nhật)
+
+#### 1. Metadata field changes
+```diff
+# Context analysis response
+- "confidence": 0.5          # Đã deprecated
++ "signal_strength": 0.5     # Mức độ tín hiệu keyword (KHÔNG phải xác suất)
++ "context_clarity": true    # true = rõ ràng, false = conflict giữa casual/technical
++ "confidence": 0.5          # Vẫn giữ cho backward compatibility
+```
+
+#### 2. Full response metadata structure (từ /chat endpoint)
+```json
+{
+  "response": "...",
+  "session_id": "xxx",
+  "metadata": {
+    "persona_used": "Casual + Cautious",
+    "tone": "casual",
+    "behavior": "cautious",
+    "context_type": "casual",
+    "needs_knowledge": true,
+    "signal_strength": 0.5,      // NEW: Thay thế confidence
+    "context_clarity": true,     // NEW: Có conflict không
+    "confidence": 0.5,           // DEPRECATED: Giữ cho backward compat
+    "length": 150,
+    "word_count": 25,
+    "estimated_read_time": 1,
+    "has_code_blocks": false
+  }
+}
+```
+
+### Added
+- **`signal_strength`** - Mức độ tín hiệu keyword (0-1)
+  - 0 = không có keyword nào match
+  - 0.5 = 1 keyword match
+  - 0.67 = 2 keywords match
+  - **LƯU Ý**: KHÔNG phải xác suất đúng, chỉ là signal strength
+  
+- **`context_clarity`** - Có rõ ràng không
+  - `true` = chỉ casual HOẶC technical có signal (rõ ràng)
+  - `false` = cả 2 đều có signal (conflict) hoặc đều không có
+
+- **Test automation** - 30 test cases
+  - `tests/test_conversations.yaml` - 20 core tests
+  - `tests/test_edge_cases.yaml` - 10 edge tests với `must_pass` / `allowed_to_fail`
+  - `tests/test_automation.py` - Script tự động chạy test
+
+### Changed
+- **Score formula** (internal - không ảnh hưởng API response)
+  - Cũ: `matches / total_keywords` → list keyword dài = score thấp (bug)
+  - Mới: `matches / (matches + 1)` → 1 match luôn = 0.5
+
+### Deprecated
+- **`confidence`** trong metadata - Vẫn hoạt động nhưng nên dùng `signal_strength`
+
+### Notes for UI
+1. **Nên hiển thị `context_clarity`** khi debug/admin mode
+2. **Không nên hiển thị `signal_strength`** cho end-user (dễ hiểu nhầm là "độ chắc chắn")
+3. **Backward compatible** - `confidence` vẫn có trong response
+
+---
+
 ## [2.0.0] - 2026-02-01
 
 ### Added - **Tone + Behavior Architecture** (NEW)

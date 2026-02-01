@@ -93,27 +93,35 @@ AI Core là một **Conversational AI Engine** với khả năng:
 #### context.py (130 lines)
 **Vai trò**: Context analyzer - hiểu user đang hỏi gì
 
-**✅ UPDATE v1.2 - Semantic Separation**:
+**✅ UPDATE v2.1 - Signal Strength + Context Clarity**:
 - `context_type`: casual | technical (loại câu hỏi)
 - `response_mode`: casual | technical | cautious (cách AI trả lời)
-- Before: `cautious` lẫn với `need_knowledge` → sai semantic
+- `signal_strength`: Mức độ tín hiệu keyword (KHÔNG phải xác suất đúng)
+- `context_clarity`: True = rõ ràng, False = có conflict giữa casual/technical
 
-**Logic**:
+**Logic Score** (v2.1):
+```python
+# Formula: matches / (matches + 1)
+# 1 match = 0.5, 2 matches = 0.67, 3 matches = 0.75
+# Đảm bảo: có match = có signal, không phụ thuộc độ dài keyword list
+```
+
+**Logic Context**:
 ```python
 Input: "Xin chào!" 
 → context_type: casual
-→ response_mode: casual
-→ Confidence: 0%
+→ signal_strength: 0.5
+→ context_clarity: True (chỉ casual có signal)
 
 Input: "Debug lỗi Python"
 → context_type: technical
-→ response_mode: technical
-→ Confidence: 60%
+→ signal_strength: 0.67 (2 keywords)
+→ context_clarity: True
 
-Input: "Tìm sách về AI"
-→ context_type: casual (không phải technical question)
-→ needs_knowledge: True
-→ response_mode: cautious (thận trọng vì cần knowledge)
+Input: "haha explain code này đi"
+→ context_type: casual (haha) vs technical (code)
+→ signal_strength: 0.5
+→ context_clarity: False (conflict!)
 ```
 
 **2 Context Types** (what user asks):
@@ -127,7 +135,6 @@ Input: "Tìm sách về AI"
 
 **Refusal Logic** (method `should_refuse()`):
 - ⚠️ **Câu hỏi quá ngắn** (`len(input) < 5`): Trả về cứng "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?" → **KHÔNG GỌI LLM**
-- **Thiếu context cho kiến thức** (`needs_knowledge=True` + `confidence < 0.3`): Yêu cầu thêm thông tin → **KHÔNG GỌI LLM**
 - Nếu refuse → Response trả về với `metadata.refused=True`, `model=null`, `usage=null`
 
 **Config**: `app/config/rules.yaml`

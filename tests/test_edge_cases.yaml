@@ -1,0 +1,132 @@
+# TEST EDGE CASES - Bẻ rule để biết giới hạn
+# Version: 1.0.0
+# Date: 2026-02-01
+#
+# MỤC ĐÍCH: Không phải để sửa rule, mà để biết rule giới hạn ở đâu
+# 
+# NGUYÊN TẮC:
+#   - must_pass: Rule PHẢI handle đúng, nếu fail → fix rule
+#   - allowed_to_fail: Rule được phép fail, embedding phase sẽ xử lý
+#
+# "Rule bắt cái chắc, embedding bắt cái mơ hồ"
+
+# ============================================
+# CONFLICT TONE (4 tests) - User nói rõ tone
+# ============================================
+conflict_tone:
+  - id: "conflict_01"
+    input: "haha nhưng noi nghiem tuc thi sach do co nen doc khong"
+    expected:
+      # "noi nghiem tuc" = user command → technical
+      # "sach" → needs_knowledge
+      tone: "technical"
+      behavior: "cautious"
+    pass_level: "allowed_to_fail"
+    note: "Không dấu + mixed signal, embedding sẽ xử lý"
+
+  - id: "conflict_02"
+    input: "hoi cho vui thoi chu noi that la clean code co dang doc khong"
+    expected:
+      # "hoi cho vui" = casual command
+      # "clean code" = sách → needs_knowledge
+      tone: "casual"
+      behavior: "cautious"
+    pass_level: "allowed_to_fail"
+    note: "Slang + không dấu"
+
+  - id: "conflict_03"
+    input: "Nói nghiêm túc nha, explain async await cho tao"
+    expected:
+      # "Nói nghiêm túc" = explicit command → technical
+      # "async await" = technical question
+      tone: "technical"
+      behavior: "normal"
+    pass_level: "must_pass"
+    note: "Có dấu, explicit command - RULE PHẢI BẮT ĐƯỢC"
+
+  - id: "conflict_04"
+    input: "Ok giới thiệu nhanh về ML đi (hỏi chơi thôi)"
+    expected:
+      # "(hỏi chơi thôi)" = explicit casual
+      # "ML" = technical topic nhưng user muốn casual
+      tone: "casual"
+      behavior: "normal"
+    pass_level: "must_pass"
+    note: "Explicit casual command trong ngoặc"
+
+# ============================================
+# SLANG / KHÔNG DẤU (3 tests)
+# ============================================
+slang_no_accent:
+  - id: "slang_01"
+    input: "recommend sach ve ML cho nguoi moi di"
+    expected:
+      tone: "casual"
+      behavior: "cautious"  # "sach" → needs_knowledge
+    pass_level: "allowed_to_fail"
+    note: "Không dấu hoàn toàn"
+
+  - id: "slang_02"
+    input: "clean code co ok ko m"
+    expected:
+      tone: "casual"
+      behavior: "cautious"
+    pass_level: "allowed_to_fail"
+    note: "Slang 'ko', 'm' + không dấu"
+
+  - id: "slang_03"
+    input: "debug loi nay sao ta"
+    expected:
+      tone: "technical"
+      behavior: "normal"
+    pass_level: "allowed_to_fail"
+    note: "Không dấu, 'debug' có thể match"
+
+# ============================================
+# MIXED LANGUAGE / AMBIGUITY (3 tests)
+# ============================================
+mixed_ambiguous:
+  - id: "mixed_01"
+    input: "recommend book ve antique di, noi nghiem tuc nha"
+    expected:
+      # "noi nghiem tuc" = technical tone
+      # "book" + "recommend" = needs_knowledge
+      tone: "technical"
+      behavior: "cautious"
+    pass_level: "allowed_to_fail"
+    note: "Mixed Viet-English + không dấu"
+
+  - id: "mixed_02"
+    input: "ok explain cho tao async await la gi nha"
+    expected:
+      tone: "technical"
+      behavior: "normal"
+    pass_level: "allowed_to_fail"
+    note: "Mixed + slang 'cho tao'"
+
+  - id: "mixed_03"
+    input: "haha explain code nay di"
+    expected:
+      # "haha" = casual signal
+      # "code" = technical signal
+      # Dominant: casual (haha explicit)
+      tone: "casual"
+      behavior: "normal"
+    pass_level: "allowed_to_fail"
+    note: "Conflict: haha (casual) vs code (technical)"
+
+# ============================================
+# SUMMARY: Test này dùng để làm gì?
+# ============================================
+# 
+# 1. must_pass tests: Nếu FAIL → sửa rule
+# 2. allowed_to_fail tests: Nếu FAIL → OK, ghi nhận cho embedding phase
+#
+# KHÔNG CỐ SỬA RULE CHO PASS TẤT CẢ!
+# Rule chỉ cần bắt "cái chắc"
+#
+# Mapping fail → phase:
+#   - Không dấu → Embedding (character-level similarity)
+#   - Slang → Embedding (semantic similarity)
+#   - Mixed language → Embedding (multilingual model)
+#   - Tone conflict → LLM Router (reasoning required)

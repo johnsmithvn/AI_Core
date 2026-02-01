@@ -2,6 +2,28 @@
 
 ## ✅ HOÀN THÀNH
 
+### v2.1.0 - Signal Strength & Context Clarity (2026-02-01)
+
+1. ✅ Đổi tên `confidence` → `signal_strength`
+   - Tránh hiểu nhầm là "xác suất đúng"
+   - signal_strength = mức độ tín hiệu keyword
+
+2. ✅ Thêm `context_clarity`
+   - True = chỉ 1 loại có signal (rõ ràng)
+   - False = cả casual và technical đều có signal (conflict)
+
+3. ✅ Sửa score formula
+   - Cũ: `matches / total_keywords` → list dài = score thấp (sai)
+   - Mới: `matches / (matches + 1)` → có match = có signal
+
+4. ✅ Test automation với 30 test cases
+   - 20 core tests (must pass)
+   - 10 edge tests (allowed to fail → embedding phase)
+
+5. ✅ Cập nhật docs
+   - CODEBASE_ANALYSIS.md
+   - TODO.md
+
 ### v1.2.0 - Length Management & Semantic Fixes (2026-02-01)
 
 1. ✅ Bỏ hard truncate sau generation (anti-pattern cho local AI)

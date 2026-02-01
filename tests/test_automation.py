@@ -89,20 +89,27 @@ class ConversationTester:
     - Behavior accuracy (normal/cautious selection)
     - Refuse accuracy (đúng lúc từ chối)
     - Fabrication detection (AI có bịa không)
+    
+    Pass levels:
+    - must_pass: Rule PHẢI handle đúng
+    - allowed_to_fail: Rule được phép fail (embedding phase sẽ xử lý)
     """
     
     def __init__(
         self,
         test_file: str = "tests/test_conversations.yaml",
+        edge_test_file: str = "tests/test_edge_cases.yaml",
         use_real_model: bool = False,
         model_provider: str = "mock"
     ):
         self.test_file = Path(test_file)
+        self.edge_test_file = Path(edge_test_file)
         self.use_real_model = use_real_model
         self.model_provider = model_provider
         
         # Load test cases
         self.test_cases = self._load_test_cases()
+        self.edge_cases = self._load_edge_cases()
         
         # Initialize components
         self.context_analyzer = ContextAnalyzer()
@@ -124,6 +131,14 @@ class ConversationTester:
         
         with open(self.test_file, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
+    
+    def _load_edge_cases(self) -> Dict[str, Any]:
+        """Load edge test cases từ YAML"""
+        if not self.edge_test_file.exists():
+            return {}
+        
+        with open(self.edge_test_file, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
     
     def run_all_tests(self) -> TestReport:
         """Chạy tất cả test cases"""
@@ -152,10 +167,58 @@ class ConversationTester:
                     self.report.results.append(result)
                     self._print_test_result(result)
         
+        # Run edge cases với pass_level
+        if self.edge_cases:
+            self._run_edge_tests()
+        
         # Print summary
         self._print_summary()
         
         return self.report
+    
+    def _run_edge_tests(self):
+        """Chạy edge test cases với must_pass / allowed_to_fail"""
+        edge_categories = [
+            ("conflict_tone", "🔀 CONFLICT TONE"),
+            ("slang_no_accent", "💬 SLANG / KHÔNG DẤU"),
+            ("mixed_ambiguous", "🌐 MIXED LANGUAGE"),
+        ]
+        
+        print("\n" + "="*60)
+        print("🧪 EDGE CASES (Rule Boundary Tests)")
+        print("="*60)
+        
+        must_pass_failed = []
+        allowed_fail_count = 0
+        
+        for category_key, category_name in edge_categories:
+            if category_key in self.edge_cases:
+                print(f"\n{category_name}")
+                print("-" * 40)
+                for test_case in self.edge_cases[category_key]:
+                    result = self._run_single_test(test_case, category_key)
+                    pass_level = test_case.get("pass_level", "must_pass")
+                    
+                    if result.status == TestStatus.FAILED:
+                        if pass_level == "must_pass":
+                            must_pass_failed.append(result)
+                            print(f"  {result.test_id}: ❌ MUST PASS - FAILED")
+                        else:
+                            allowed_fail_count += 1
+                            print(f"  {result.test_id}: ⏭️ ALLOWED FAIL (embedding phase)")
+                    else:
+                        print(f"  {result.test_id}: ✅ PASSED")
+        
+        print(f"\n📊 Edge Test Summary:")
+        print(f"   Must-pass failures: {len(must_pass_failed)} {'🚨' if must_pass_failed else '✅'}")
+        print(f"   Allowed failures: {allowed_fail_count} (OK - embedding phase)")
+        
+        if must_pass_failed:
+            print(f"\n🚨 CRITICAL: These must_pass tests failed:")
+            for r in must_pass_failed:
+                print(f"   [{r.test_id}] {r.input_text[:40]}...")
+                for err in r.errors:
+                    print(f"      → {err}")
     
     def _run_single_test(self, test_case: Dict, category: str) -> TestResult:
         """Chạy một test case"""

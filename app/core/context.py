@@ -99,9 +99,16 @@ class ContextAnalyzer:
         else:
             response_mode = context_type
         
-        # Confidence = max of relevant scores
+        # Signal strength = max of relevant scores
+        # LƯU Ý: Đây KHÔNG phải xác suất đúng, chỉ là "mức độ có tín hiệu keyword"
         all_scores = {**context_scores, "knowledge": knowledge_score}
-        confidence = max(all_scores.values())
+        signal_strength = max(all_scores.values())
+        
+        # Context clarity: Có rõ ràng không hay bị conflict?
+        # True = chỉ 1 loại có signal, False = cả 2 đều có hoặc đều không
+        has_casual_signal = casual_score > 0
+        has_technical_signal = technical_score > 0
+        context_clarity = (has_casual_signal != has_technical_signal)  # XOR
         
         # Collect indicators
         indicators = self._get_indicators(text_lower, detection)
@@ -109,20 +116,39 @@ class ContextAnalyzer:
         return {
             "context_type": context_type,      # casual | technical (what user is asking)
             "response_mode": response_mode,    # casual | technical | cautious (how AI responds)
-            "confidence": confidence,
+            "signal_strength": signal_strength,  # Mức độ tín hiệu keyword (KHÔNG phải xác suất)
+            "context_clarity": context_clarity,  # True = rõ ràng, False = có conflict/mơ hồ
             "needs_knowledge": needs_knowledge,
             "indicators": indicators,
-            "scores": all_scores
+            "scores": all_scores,
+            # Legacy support
+            "confidence": signal_strength  # Deprecated, use signal_strength
         }
     
     def _calculate_score(self, text: str, config: dict) -> float:
-        """Calculate matching score for a context type"""
+        """
+        Calculate matching score for a context type.
+        
+        Logic: Nếu có BẤT KỲ keyword nào match → score = 1.0 / (1 + penalty)
+        - Nhiều keywords match → score cao hơn
+        - Ít nhất 1 match → score > threshold (0.1)
+        
+        Cũ: matches / total_keywords → list dài = score thấp (sai logic)
+        Mới: Có match = có signal, số match tăng = confidence tăng
+        """
         keywords = config.get("keywords", [])
         if not keywords:
             return 0.0
         
         matches = sum(1 for kw in keywords if kw in text)
-        return matches / len(keywords)
+        
+        if matches == 0:
+            return 0.0
+        
+        # 1 match = 0.5, 2 matches = 0.67, 3 matches = 0.75, ...
+        # Formula: matches / (matches + 1)
+        # Đảm bảo: 1 match luôn > 0.1 threshold
+        return matches / (matches + 1)
     
     def _get_indicators(self, text: str, detection: dict) -> list[str]:
         """Get matched keyword indicators"""

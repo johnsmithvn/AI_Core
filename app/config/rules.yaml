@@ -80,10 +80,9 @@ context_detection:
       - "kiến trúc"
       - "phỏng vấn"
       - "microservices"
-    # Giảm threshold vì có nhiều keywords
-    # score = matches/total, với 23 keywords cần >= 1 match
-    # 1/23 = 0.043, set threshold = 0.04
-    confidence_threshold: 0.04
+    # Threshold 0.1: Cần ít nhất 1 keyword match
+    # Với formula mới: 1 match = 0.5 > 0.1 ✓
+    confidence_threshold: 0.1
 
 # Response validation
 output_rules:
