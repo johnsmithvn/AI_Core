@@ -148,8 +148,13 @@ Input: "Debug lỗi Python"
 
 **⚠️ BUG FIX (2026-01-27)**: Thêm `_filter_history_for_alternating()` để đảm bảo messages luôn xen kẽ user/assistant, tránh lỗi "Conversation roles must alternate" từ LM Studio/Gemma models.
 
+**✅ UPDATE v1.2 (2026-02-01)**: Self-managed Response Length
+- AI được hướng dẫn tự quản lý độ dài
+- Response >500 từ → tóm tắt trước, hỏi user muốn chi tiết không
+- Giống cách người thật nói chuyện
+
 **Components**:
-1. **Base System Prompt**: Core principles (hard-coded)
+1. **Base System Prompt**: Core principles + Length management guideline
 2. **Persona Additions**: Dynamic từ persona config
 3. **Context Info**: Warnings về confidence
 4. **Knowledge**: Retrieved từ long-term memory
@@ -168,13 +173,32 @@ Input: "Debug lỗi Python"
 
 **Quan trọng**: ⭐⭐⭐⭐⭐ (Quality của prompt = quality của response)
 
-#### output.py (140 lines)
-**Vai trò**: Output processor - validate và clean
+#### output.py (180 lines)
+**Vai trò**: Output processor - validate behavior và mô tả content
+
+**✅ UPDATE v1.2 - Length Management Philosophy**:
+- ❌ KHÔNG cắt text sau khi model đã generate (vô nghĩa với local AI)
+- ✅ CHỈ mô tả content qua metadata (length, read_time, word_count)
+- ✅ Validate behavior theo context (warning, không block)
 
 **Validation Rules**:
-- Max length (1000 chars)
-- Honesty check (không overconfident)
-- Format cleanup (whitespace, newlines)
+- **Length awareness** (context-based, không phải limit):
+  - Casual chat dài >3000 chars → warning
+  - Cautious + dài + certainty language → suspicious
+  - Low confidence + very long → warning
+- **Honesty check** (không overconfident)
+- **Format cleanup** (whitespace, newlines)
+
+**Metadata Generated** (mô tả content):
+```python
+metadata = {
+    "length": len(content),
+    "word_count": word_count,
+    "estimated_read_time": word_count // 200,  # minutes
+    "has_code_blocks": bool,
+    # ...
+}
+```
 
 **Honesty Logic**:
 ```python
@@ -182,7 +206,9 @@ if confidence < 0.5 and has_certainty_language:
     return (False, "Claiming certainty with low confidence")
 ```
 
-**Quan trọng**: ⭐⭐⭐⭐ (Đảm bảo quality control)
+**Philosophy**: AI Core mô tả content, UI quyết định hiển thị
+
+**Quan trọng**: ⭐⭐⭐⭐ (Behavior validator, không phải content controller)
 
 #### logging.py (70 lines) - MỚI THÊM
 **Vai trò**: Structured logging với structlog

@@ -44,7 +44,7 @@ context_detection:
 
 # Response validation
 output_rules:
-  max_length: 1000
+  max_length: null  # No limit for local AI
   must_be_honest: true
   can_refuse: true
   can_joke_about_attitude: true

@@ -1,7 +1,7 @@
 # 📂 AI CORE - PROJECT STRUCTURE
 
-**Version**: 1.1.3  
-**Last Updated**: 2026-01-26
+**Version**: 1.2.0  
+**Last Updated**: 2026-02-01
 
 ---
 
@@ -101,6 +101,7 @@ AI_core/
 | **README.md** | Main documentation, installation, API | All users | ~150 lines |
 | **QUICK_START.md** | Quick start guide, examples | New users | ~200 lines |
 | **CODEBASE_ANALYSIS.md** | Architecture, technical deep dive | Developers | ~1000 lines |
+| **LENGTH_MANAGEMENT.md** | Length philosophy & implementation | Developers | ~250 lines |
 | **TODO.md** | Progress tracking, task list | Team | ~140 lines |
 | **CHANGELOG.md** | Version history | All users | ~40 lines |
 | **STRUCTURE.md** | Project structure guide | All users | This file |
@@ -109,6 +110,7 @@ AI_core/
 - Muốn bắt đầu nhanh → đọc **QUICK_START.md**
 - Muốn hiểu system → đọc **README.md**
 - Muốn phát triển → đọc **CODEBASE_ANALYSIS.md**
+- Muốn hiểu length management → đọc **LENGTH_MANAGEMENT.md** (NEW v1.2.0)
 - Muốn track progress → đọc **TODO.md**
 
 ---
@@ -125,8 +127,8 @@ AI_core/
 - **engine.py**: Main orchestrator (9-step pipeline)
 - **context.py**: Context analyzer (casual/technical/cautious)
 - **persona.py**: Persona selector (3 personas)
-- **prompt.py**: Prompt builder với history
-- **output.py**: Output validation
+- **prompt.py**: Prompt builder với AI self-managed length (v1.2.0)
+- **output.py**: Behavior validator (không cắt text) (v1.2.0)
 - **logging.py**: Structured logging với request tracing
 
 ### 3. Memory (app/memory/)

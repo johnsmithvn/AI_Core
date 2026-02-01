@@ -18,7 +18,7 @@ class OutputProcessor:
     def _default_rules() -> dict:
         """Default output rules"""
         return {
-            "max_length": 1000,
+            "max_length": None,  # No limit for local AI
             "must_be_honest": True,
             "can_refuse": True,
             "can_joke_about_attitude": True,
@@ -50,11 +50,11 @@ class OutputProcessor:
         content = raw_output.strip()
         warnings = []
         
-        # Check length
-        max_length = self.rules.get("max_length", 1000)
-        if len(content) > max_length:
-            warnings.append(f"Output exceeds max length ({len(content)}/{max_length})")
-            content = content[:max_length] + "..."
+        # Clean up formatting first
+        content = self._cleanup_formatting(content)
+        
+        # LEVEL 2.3: Length awareness theo context (behavior validation, NOT truncate)
+        warnings.extend(self._validate_length_behavior(content, context))
         
         # Check for dishonesty patterns (simple heuristic)
         if self.rules.get("must_be_honest"):
@@ -69,15 +69,16 @@ class OutputProcessor:
                 if re.search(pattern, content.lower()):
                     warnings.append(f"Potentially overconfident language: {pattern}")
         
-        # Clean up formatting
-        content = self._cleanup_formatting(content)
-        
-        # Build metadata
+        # LEVEL 1.2: Build metadata - mô tả nội dung, không kiểm soát
+        word_count = len(content.split())
         metadata = {
             "persona_used": persona.get("name"),
             "context_type": context.get("context_type"),
             "confidence": context.get("confidence"),
-            "length": len(content)
+            "length": len(content),
+            "word_count": word_count,
+            "estimated_read_time": max(1, word_count // 200),  # minutes
+            "has_code_blocks": bool(re.search(r'```', content))
         }
         
         return {
@@ -97,6 +98,33 @@ class OutputProcessor:
         text = text.strip()
         
         return text
+    
+    def _validate_length_behavior(self, content: str, context: Dict[str, Any]) -> list[str]:
+        """LEVEL 2.3: Validate length behavior based on context (NOT truncate)"""
+        warnings = []
+        length = len(content)
+        context_type = context.get("context_type", "unknown")
+        confidence = context.get("confidence", 1.0)
+        
+        # Casual chat → dài bất thường = warning
+        if context_type == "casual_chat" and length > 3000:
+            warnings.append("Casual response unusually long (>3000 chars)")
+        
+        # Cautious + dài + chắc chắn = suspicious
+        if context_type == "cautious" and length > 2000:
+            # Check if response has certainty language
+            has_certainty = any(
+                phrase in content.lower() 
+                for phrase in ["chắc chắn", "100%", "hoàn toàn đúng"]
+            )
+            if has_certainty:
+                warnings.append("Cautious context but long response with high certainty")
+        
+        # Low confidence + very long = suspicious
+        if confidence < 0.5 and length > 2500:
+            warnings.append(f"Low confidence ({confidence:.0%}) but very long response")
+        
+        return warnings
     
     def validate_honesty(self, output: str, context: Dict[str, Any]) -> tuple[bool, str]:
         """

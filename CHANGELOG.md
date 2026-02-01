@@ -4,6 +4,35 @@ All notable changes to AI Core will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-02-01
+
+### Changed - **Length Management Philosophy** (BREAKING: Behavioral change)
+- ❌ **REMOVED hard truncate after generation** (anti-pattern cho local AI)
+  - Cắt text sau khi model generate = vô nghĩa (đã tốn tài nguyên)
+  - `max_length: null` in `rules.yaml` - không giới hạn
+  
+- ✅ **NEW: Content description, not control**
+  - `output.py` giờ chỉ **mô tả content** qua metadata
+  - Added: `word_count`, `estimated_read_time`, `has_code_blocks`
+  - Length validation → behavior warnings (không cắt text)
+  
+- ✅ **NEW: Context-aware length behavior validation**
+  - Casual chat dài >3000 chars → warning
+  - Cautious + dài + certainty → suspicious
+  - Low confidence + very long → warning
+  - **Philosophy**: Validate behavior, not truncate output
+
+- ✅ **NEW: AI self-managed response length**
+  - Updated `BASE_SYSTEM_PROMPT` với length management guideline
+  - AI có thể tóm tắt trước, hỏi user muốn chi tiết không
+  - Response >500 từ → chia nhỏ hoặc hỏi user
+  - Giống cách người thật nói chuyện
+
+### Improved
+- **Separation of concerns**: AI Core mô tả, UI quyết định hiển thị
+- Better metadata cho frontend: read time, word count
+- More natural conversation flow
+
 ## [1.1.3] - 2026-01-25
 
 ### Added
