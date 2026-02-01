@@ -74,6 +74,7 @@ class OutputProcessor:
         metadata = {
             "persona_used": persona.get("name"),
             "context_type": context.get("context_type"),
+            "response_mode": context.get("response_mode"),  # NEW: how AI responded
             "confidence": context.get("confidence"),
             "length": len(content),
             "word_count": word_count,
@@ -107,18 +108,19 @@ class OutputProcessor:
         confidence = context.get("confidence", 1.0)
         
         # Casual chat → dài bất thường = warning
-        if context_type == "casual_chat" and length > 3000:
+        if context_type == "casual" and length > 3000:
             warnings.append("Casual response unusually long (>3000 chars)")
         
-        # Cautious + dài + chắc chắn = suspicious
-        if context_type == "cautious" and length > 2000:
+        # response_mode=cautious + dài + chắc chắn = suspicious
+        response_mode = context.get("response_mode", context_type)
+        if response_mode == "cautious" and length > 2000:
             # Check if response has certainty language
             has_certainty = any(
                 phrase in content.lower() 
                 for phrase in ["chắc chắn", "100%", "hoàn toàn đúng"]
             )
             if has_certainty:
-                warnings.append("Cautious context but long response with high certainty")
+                warnings.append("Cautious response_mode but long response with high certainty")
         
         # Low confidence + very long = suspicious
         if confidence < 0.5 and length > 2500:

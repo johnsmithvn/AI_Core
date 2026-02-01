@@ -28,10 +28,21 @@ All notable changes to AI Core will be documented in this file.
   - Response >500 từ → chia nhỏ hoặc hỏi user
   - Giống cách người thật nói chuyện
 
+### Fixed - **Semantic Corrections**
+- **`context_type` vs `response_mode` separation** (context.py)
+  - `context_type`: casual | technical (what user is asking)
+  - `response_mode`: casual | technical | cautious (how AI responds)
+  - Before: `cautious` was mixed with `need_knowledge` → semantic error
+  
+- **User message `persona=None`** (engine.py)
+  - User messages don't have persona, only assistant messages do
+  - Before: `persona=persona["name"]` for user → incorrect schema
+
 ### Improved
 - **Separation of concerns**: AI Core mô tả, UI quyết định hiển thị
-- Better metadata cho frontend: read time, word count
+- Better metadata cho frontend: read time, word count, response_mode
 - More natural conversation flow
+- Cleaner semantic model
 
 ## [1.1.3] - 2026-01-25
 

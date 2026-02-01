@@ -80,30 +80,39 @@ class ContextAnalyzer:
             detection.get("need_knowledge", {})
         )
         
-        # Determine context type
-        scores = {
+        # Determine context type (casual or technical - what user is asking)
+        context_scores = {
             "casual": casual_score,
-            "technical": technical_score,
-            "cautious": knowledge_score
+            "technical": technical_score
         }
-        
-        context_type = max(scores, key=scores.get)
-        confidence = scores[context_type]
+        context_type = max(context_scores, key=context_scores.get)
         
         # Check if knowledge retrieval needed
-        needs_knowledge = knowledge_score > detection.get(
-            "need_knowledge", {}
-        ).get("confidence_threshold", 0.5)
+        knowledge_threshold = detection.get("need_knowledge", {}).get("confidence_threshold", 0.5)
+        needs_knowledge = knowledge_score > knowledge_threshold
+        
+        # Determine response_mode (how AI should respond)
+        # - cautious: when needs_knowledge (thận trọng, không bịa)
+        # - otherwise: follow context_type
+        if needs_knowledge:
+            response_mode = "cautious"
+        else:
+            response_mode = context_type
+        
+        # Confidence = max of relevant scores
+        all_scores = {**context_scores, "knowledge": knowledge_score}
+        confidence = max(all_scores.values())
         
         # Collect indicators
         indicators = self._get_indicators(text_lower, detection)
         
         return {
-            "context_type": context_type,
+            "context_type": context_type,      # casual | technical (what user is asking)
+            "response_mode": response_mode,    # casual | technical | cautious (how AI responds)
             "confidence": confidence,
             "needs_knowledge": needs_knowledge,
             "indicators": indicators,
-            "scores": scores
+            "scores": all_scores
         }
     
     def _calculate_score(self, text: str, config: dict) -> float:

@@ -93,23 +93,37 @@ AI Core là một **Conversational AI Engine** với khả năng:
 #### context.py (130 lines)
 **Vai trò**: Context analyzer - hiểu user đang hỏi gì
 
+**✅ UPDATE v1.2 - Semantic Separation**:
+- `context_type`: casual | technical (loại câu hỏi)
+- `response_mode`: casual | technical | cautious (cách AI trả lời)
+- Before: `cautious` lẫn với `need_knowledge` → sai semantic
+
 **Logic**:
 ```python
 Input: "Xin chào!" 
-→ Keywords: ["chơi", "cười"] match? No
-→ Context: casual (default)
+→ context_type: casual
+→ response_mode: casual
 → Confidence: 0%
 
 Input: "Debug lỗi Python"
-→ Keywords: ["debug", "lỗi"] match? Yes
-→ Context: technical
+→ context_type: technical
+→ response_mode: technical
 → Confidence: 60%
+
+Input: "Tìm sách về AI"
+→ context_type: casual (không phải technical question)
+→ needs_knowledge: True
+→ response_mode: cautious (thận trọng vì cần knowledge)
 ```
 
-**3 Context Types**:
+**2 Context Types** (what user asks):
 1. **casual**: Chat chơi, hỏi han
 2. **technical**: Hỏi kỹ thuật, code
-3. **cautious**: Hỏi kiến thức, cần thận trọng
+
+**3 Response Modes** (how AI responds):
+1. **casual**: Thoải mái
+2. **technical**: Chính xác
+3. **cautious**: Thận trọng (khi needs_knowledge=True)
 
 **Refusal Logic** (method `should_refuse()`):
 - ⚠️ **Câu hỏi quá ngắn** (`len(input) < 5`): Trả về cứng "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?" → **KHÔNG GỌI LLM**

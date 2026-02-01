@@ -231,10 +231,19 @@ class ModelClient:
         if not self.base_url:
             raise ValueError("Base URL required for local model")
         
+        # Get model name - either from config or auto-detect from server
+        model_to_use = self.model_name
+        if not model_to_use or model_to_use == "auto":
+            model_to_use = await self._get_first_available_model()
+        
+        # Convert messages for models that don't support system role
+        # (e.g., Mistral template only supports user/assistant)
+        converted_messages = self._convert_messages_for_local(messages)
+        
         # Build OpenAI-compatible request payload
         payload = {
-            "model": self.model_name,
-            "messages": messages,
+            "model": model_to_use,  # Required when multiple models loaded
+            "messages": converted_messages,
             "temperature": temperature,
             "stream": False  # Explicitly disable streaming
         }
@@ -273,7 +282,7 @@ class ModelClient:
             
             return {
                 "content": message["content"],
-                "model": data.get("model", self.model_name),
+                "model": data.get("model", "local-model"),  # Get actual model from response
                 "usage": data.get("usage", {
                     "prompt_tokens": 0,
                     "completion_tokens": 0,
@@ -299,6 +308,66 @@ class ModelClient:
         
         except Exception as e:
             raise ValueError(f"Local model request failed: {str(e)}")
+    
+    async def _get_first_available_model(self) -> str:
+        """
+        Get first available model from local server.
+        Uses /v1/models endpoint (OpenAI-compatible).
+        """
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(f"{self.base_url}/v1/models")
+                response.raise_for_status()
+                data = response.json()
+            
+            models = data.get("data", [])
+            if not models:
+                raise ValueError("No models available on server")
+            
+            # Return first model's ID
+            first_model = models[0].get("id", "unknown")
+            return first_model
+            
+        except Exception as e:
+            # Fallback if can't get models list
+            raise ValueError(f"Cannot auto-detect model: {str(e)}. Please set LOCAL_MODEL_NAME in .env")
+    
+    def _convert_messages_for_local(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        Convert messages for local models that don't support system role.
+        Some models (e.g., Mistral) only support user/assistant roles.
+        
+        Strategy: Merge system message into first user message.
+        """
+        converted = []
+        system_content = None
+        
+        for msg in messages:
+            if msg["role"] == "system":
+                # Collect system message content
+                system_content = msg["content"]
+            elif msg["role"] == "user":
+                # If we have system content, prepend to first user message
+                if system_content:
+                    converted.append({
+                        "role": "user",
+                        "content": f"[System Instructions]\n{system_content}\n\n[User Message]\n{msg['content']}"
+                    })
+                    system_content = None  # Only prepend once
+                else:
+                    converted.append(msg)
+            else:
+                # assistant or other roles - pass through
+                converted.append(msg)
+        
+        # If only system message (no user message yet), convert to user
+        if system_content and not converted:
+            converted.append({
+                "role": "user",
+                "content": f"[System Instructions]\n{system_content}"
+            })
+        
+        return converted
     
     def set_mock_response(self, response: str) -> None:
         """Set mock response for testing"""

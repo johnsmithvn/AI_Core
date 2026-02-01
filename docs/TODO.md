@@ -2,6 +2,34 @@
 
 ## ✅ HOÀN THÀNH
 
+### v1.2.0 - Length Management & Semantic Fixes (2026-02-01)
+
+1. ✅ Bỏ hard truncate sau generation (anti-pattern cho local AI)
+   - `max_length: null` trong rules.yaml
+   - Không cắt text sau khi model đã generate
+
+2. ✅ Chuyển từ "cắt" → "nhận biết độ dài"
+   - Rich metadata: word_count, estimated_read_time, has_code_blocks
+   - AI Core mô tả content, UI quyết định hiển thị
+
+3. ✅ Length awareness theo context (behavior validation)
+   - Casual chat >3000 chars → warning
+   - Cautious + dài + certainty → suspicious
+   - Low confidence + long → warning
+
+4. ✅ AI tự quản lý độ dài (prompt update)
+   - Updated BASE_SYSTEM_PROMPT
+   - AI có thể tóm tắt, hỏi user muốn chi tiết không
+
+5. ✅ Tách `context_type` vs `response_mode` (semantic fix)
+   - context_type: casual | technical (loại câu hỏi)
+   - response_mode: casual | technical | cautious (cách AI trả lời)
+
+6. ✅ Fix user message `persona=None`
+   - User messages không có persona, chỉ assistant mới có
+
+### v1.1.x - Base Phase
+
 1. ✅ Tạo cấu trúc thư mục project
    - app/api, app/core, app/memory, app/tools, app/model, app/config
    - data, tests
@@ -27,7 +55,7 @@
 
 7. ✅ Implement core/context.py
    - ContextAnalyzer class
-   - Phân tích ngữ cảnh (casual/technical/cautious)
+   - Phân tích ngữ cảnh: context_type (casual/technical) + response_mode
    - Quyết định có nên từ chối trả lời
 
 8. ✅ Implement core/persona.py

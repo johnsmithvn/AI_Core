@@ -200,7 +200,7 @@ class AICore:
         user_msg = Message(
             role="user",
             content=user_input,
-            persona=persona["name"]
+            persona=None  # User messages don't have persona
         )
         self.short_memory.add_message(session.id, user_msg)
         
