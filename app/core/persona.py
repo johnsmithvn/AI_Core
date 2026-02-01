@@ -1,4 +1,4 @@
-"""Persona Selector - Chọn tính cách phù hợp"""
+"""Persona Selector - Kết hợp Tone + Behavior"""
 from typing import Dict, Any
 import yaml
 from pathlib import Path
@@ -6,99 +6,138 @@ from pathlib import Path
 
 class PersonaSelector:
     """
-    Chọn persona phù hợp dựa trên context đã phân tích.
-    Persona quyết định:
-    - Giọng điệu
-    - Độ hài hước
-    - Temperature khi gọi model
+    Chọn persona dựa trên context đã phân tích.
+    
+    v2.0: Tách Tone và Behavior
+    - Tone (giọng điệu): casual / technical - quyết định bởi context_type
+    - Behavior (hành vi): normal / cautious - quyết định bởi needs_knowledge
+    
+    Kết hợp: tone + behavior = persona linh hoạt
+    Ví dụ: casual tone + cautious behavior = "Vui vẻ nhưng không bịa"
     """
     
     def __init__(self, persona_path: str = "app/config/persona.yaml"):
-        self.personas = self._load_personas(persona_path)
-        self.default_persona = self.personas.get(
-            self.personas.get("default", "casual"), 
-            {}
-        )
+        self.config = self._load_config(persona_path)
+        self.tones = self.config.get("tones", {})
+        self.behaviors = self.config.get("behaviors", {})
+        self.defaults = self.config.get("defaults", {"tone": "casual", "behavior": "normal"})
+        
+        # Legacy support
+        self.personas = self.config.get("personas", {})
     
-    def _load_personas(self, path: str) -> dict:
+    def _load_config(self, path: str) -> dict:
         """Load persona configurations"""
         persona_file = Path(path)
         if not persona_file.exists():
-            return self._default_personas()
+            return self._default_config()
         
         with open(persona_file, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
-            return config.get("personas", {})
+            return yaml.safe_load(f)
     
     @staticmethod
-    def _default_personas() -> dict:
-        """Default personas if config not found"""
+    def _default_config() -> dict:
+        """Default config if file not found"""
         return {
-            "default": "casual",
-            "casual": {
-                "name": "Casual",
-                "temperature": 0.8,
-                "tone": ["thân thiện", "hài hước"],
-                "patterns": ["đùa nhẹ", "né câu hỏi có duyên"]
+            "tones": {
+                "casual": {
+                    "name": "Casual",
+                    "temperature": 0.8,
+                    "style": ["thân thiện", "hài hước"],
+                    "prompt_hint": "Trả lời thân thiện, có thể đùa nhẹ."
+                },
+                "technical": {
+                    "name": "Technical",
+                    "temperature": 0.3,
+                    "style": ["rõ ràng", "chính xác"],
+                    "prompt_hint": "Trả lời rõ ràng, chính xác, có cấu trúc."
+                }
             },
-            "technical": {
-                "name": "Technical",
-                "temperature": 0.3,
-                "tone": ["rõ ràng", "chính xác"],
-                "patterns": ["trả lời đầy đủ", "ví dụ cụ thể"]
+            "behaviors": {
+                "normal": {
+                    "name": "Normal",
+                    "prompt_hint": "Trả lời tự nhiên theo hiểu biết của mình."
+                },
+                "cautious": {
+                    "name": "Cautious",
+                    "prompt_hint": "Nếu không chắc chắn, thừa nhận ngay. Không bịa."
+                }
             },
-            "cautious": {
-                "name": "Cautious",
-                "temperature": 0.5,
-                "tone": ["thận trọng", "trung thực"],
-                "patterns": ["nói rõ độ tự tin", "không bịa"]
-            }
+            "defaults": {"tone": "casual", "behavior": "normal"}
         }
     
     def select(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Chọn persona dựa trên context.
+        Chọn persona dựa trên context (v2.0 - tone + behavior).
         
         Args:
             context: Output từ ContextAnalyzer
+                - context_type: casual | technical
+                - needs_knowledge: bool
         
         Returns:
             {
-                "name": str,
+                "name": str,           # Combined name: "Casual + Cautious"
+                "tone": str,           # casual | technical
+                "behavior": str,       # normal | cautious
                 "temperature": float,
-                "tone": list,
-                "patterns": list,
                 "system_prompt_additions": str
             }
         """
-        context_type = context.get("context_type", "casual")
+        # Determine tone from context_type
+        context_type = context.get("context_type", self.defaults["tone"])
+        tone_config = self.tones.get(context_type, self.tones.get(self.defaults["tone"], {}))
+        
+        # Determine behavior from needs_knowledge
+        needs_knowledge = context.get("needs_knowledge", False)
+        behavior_key = "cautious" if needs_knowledge else "normal"
+        behavior_config = self.behaviors.get(behavior_key, self.behaviors.get("normal", {}))
+        
+        # Get confidence for prompt
         confidence = context.get("confidence", 0.5)
         
-        # Select persona
-        persona = self.personas.get(context_type, self.default_persona)
-        
-        # Build system prompt additions
-        tone_desc = ", ".join(persona.get("tone", []))
-        patterns_desc = "; ".join(persona.get("patterns", []))
+        # Build combined system prompt
+        tone_hint = tone_config.get("prompt_hint", "")
+        behavior_hint = behavior_config.get("prompt_hint", "")
         
         system_additions = f"""
-Giọng điệu: {tone_desc}
-Hành vi: {patterns_desc}
-Độ tự tin context: {confidence:.2f}
-"""
+[Giọng điệu - {tone_config.get('name', 'Unknown')}]
+{tone_hint}
+
+[Hành vi - {behavior_config.get('name', 'Unknown')}]
+{behavior_hint}
+""".strip()
+        
+        # Combined name
+        combined_name = f"{tone_config.get('name', 'Unknown')} + {behavior_config.get('name', 'Unknown')}"
         
         return {
-            "name": persona.get("name", "Unknown"),
-            "temperature": persona.get("temperature", 0.7),
-            "tone": persona.get("tone", []),
-            "patterns": persona.get("patterns", []),
-            "system_prompt_additions": system_additions.strip()
+            "name": combined_name,
+            "tone": context_type,
+            "behavior": behavior_key,
+            "temperature": tone_config.get("temperature", 0.7),
+            "tone_config": tone_config,
+            "behavior_config": behavior_config,
+            "system_prompt_additions": system_additions
         }
     
-    def get_persona(self, name: str) -> Dict[str, Any]:
-        """Get specific persona by name"""
-        return self.personas.get(name, self.default_persona)
+    def get_tone(self, name: str) -> Dict[str, Any]:
+        """Get specific tone by name"""
+        return self.tones.get(name, self.tones.get(self.defaults["tone"], {}))
     
-    def list_personas(self) -> list[str]:
-        """List available persona names"""
+    def get_behavior(self, name: str) -> Dict[str, Any]:
+        """Get specific behavior by name"""
+        return self.behaviors.get(name, self.behaviors.get("normal", {}))
+    
+    # Legacy support
+    def get_persona(self, name: str) -> Dict[str, Any]:
+        """Get specific persona by name (legacy)"""
+        return self.personas.get(name, {})
+    
+    def list_tones(self) -> list[str]:
+        """List available tone names"""
+        return list(self.tones.keys())
+    
+    def list_behaviors(self) -> list[str]:
+        """List available behavior names"""
+        return list(self.behaviors.keys())
         return [k for k in self.personas.keys() if k != "default"]

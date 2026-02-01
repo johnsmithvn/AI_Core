@@ -72,9 +72,12 @@ class OutputProcessor:
         # LEVEL 1.2: Build metadata - mô tả nội dung, không kiểm soát
         word_count = len(content.split())
         metadata = {
-            "persona_used": persona.get("name"),
+            # v2.0: Tone + Behavior thay vì persona đơn
+            "persona_used": persona.get("name"),  # Combined: "Casual + Cautious"
+            "tone": persona.get("tone"),          # casual | technical
+            "behavior": persona.get("behavior"),  # normal | cautious
             "context_type": context.get("context_type"),
-            "response_mode": context.get("response_mode"),  # NEW: how AI responded
+            "needs_knowledge": context.get("needs_knowledge"),
             "confidence": context.get("confidence"),
             "length": len(content),
             "word_count": word_count,

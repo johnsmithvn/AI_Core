@@ -1,6 +1,6 @@
 # 📂 AI CORE - PROJECT STRUCTURE
 
-**Version**: 1.2.0  
+**Version**: 2.0.0  
 **Last Updated**: 2026-02-01
 
 ---
@@ -18,8 +18,8 @@ AI_core/
 │   ├── 📁 core/                    # Business logic (NÃO DỰ ÁN)
 │   │   ├── __init__.py
 │   │   ├── engine.py               # AI Core orchestrator (9-step pipeline)
-│   │   ├── context.py              # Context analyzer (3 contexts)
-│   │   ├── persona.py              # Persona selector (3 personas)
+│   │   ├── context.py              # Context analyzer (2 outputs: context_type, needs_knowledge)
+│   │   ├── persona.py              # v2.0: Tone + Behavior selector (2x2 combinations)
 │   │   ├── prompt.py               # Prompt builder
 │   │   ├── output.py               # Output processor & validator
 │   │   └── logging.py              # Structured logging (structlog)
@@ -40,7 +40,7 @@ AI_core/
 │   │   └── router.py               # Tool routing & execution
 │   │
 │   └── 📁 config/                  # Configuration files
-│       ├── persona.yaml            # 3 personas config
+│       ├── persona.yaml            # v2.0: Tones + Behaviors config
 │       ├── rules.yaml              # Core rules + context detection
 │       └── system.yaml             # System settings
 │
@@ -102,6 +102,7 @@ AI_core/
 | **QUICK_START.md** | Quick start guide, examples | New users | ~200 lines |
 | **CODEBASE_ANALYSIS.md** | Architecture, technical deep dive | Developers | ~1000 lines |
 | **LENGTH_MANAGEMENT.md** | Length philosophy & implementation | Developers | ~250 lines |
+| **CONFIG_GUIDE.md** | Configuration files guide | All users | ~350 lines |
 | **TODO.md** | Progress tracking, task list | Team | ~140 lines |
 | **CHANGELOG.md** | Version history | All users | ~40 lines |
 | **STRUCTURE.md** | Project structure guide | All users | This file |
@@ -110,7 +111,8 @@ AI_core/
 - Muốn bắt đầu nhanh → đọc **QUICK_START.md**
 - Muốn hiểu system → đọc **README.md**
 - Muốn phát triển → đọc **CODEBASE_ANALYSIS.md**
-- Muốn hiểu length management → đọc **LENGTH_MANAGEMENT.md** (NEW v1.2.0)
+- Muốn hiểu length management → đọc **LENGTH_MANAGEMENT.md**
+- Muốn hiểu config files → đọc **CONFIG_GUIDE.md** (NEW v1.2.0)
 - Muốn track progress → đọc **TODO.md**
 
 ---
@@ -235,6 +237,17 @@ python-dotenv==1.0.0    # Environment variables
 1. README.md - Hiểu tổng quan
 2. QUICK_START.md - Chạy thử
 3. Thử modify `app/config/persona.yaml`
+```
+User input → Context Detection (dynamic)
+                    ↓
+            context_type + confidence
+                    ↓
+     Build Prompt + Core Principles (fixed)
+                    ↓
+              Model Generate
+                    ↓
+     Output Validation (check core_principles)
+```
 
 ### Intermediate (Muốn customize)
 1. CODEBASE_ANALYSIS.md - Hiểu kiến trúc
@@ -275,3 +288,5 @@ Core areas:
 **Project Status**: ✅ **PRODUCTION READY**  
 **Last Build**: 2026-01-26  
 **Version**: 1.1.3
+
+

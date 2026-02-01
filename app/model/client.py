@@ -257,8 +257,9 @@ class ModelClient:
             "Content-Type": "application/json"
         }
         
-        # Use longer timeout for local models (may be slower)
-        timeout = max(self.timeout, 60.0)
+        # Use configured timeout for local models (may be much slower than cloud APIs)
+        # Default 300s allows for ~2000 tokens at 7 tokens/s (slow hardware)
+        timeout = float(self.timeout)
         
         try:
             async with httpx.AsyncClient(timeout=timeout) as client:

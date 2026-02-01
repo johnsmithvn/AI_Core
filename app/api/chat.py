@@ -69,7 +69,8 @@ elif provider == "local":
     model_client = ModelClient(
         provider="local",
         base_url=os.getenv("LOCAL_MODEL_URL", "http://localhost:8080"),
-        model_name=os.getenv("LOCAL_MODEL_NAME", "llama-3-8b")
+        model_name=os.getenv("LOCAL_MODEL_NAME", "llama-3-8b"),
+        timeout=int(os.getenv("LOCAL_TIMEOUT", "300"))
     )
 else:  # mock (default)
     model_client = ModelClient(provider="mock")

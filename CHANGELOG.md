@@ -4,6 +4,34 @@ All notable changes to AI Core will be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-02-01
+
+### Added - **Tone + Behavior Architecture** (NEW)
+- **Tách biệt Tone và Behavior** thay vì chọn 1 persona cứng
+  - `tone`: casual | technical (cách nói - quyết định bởi context_type)
+  - `behavior`: normal | cautious (hành vi - quyết định bởi needs_knowledge)
+  - 4 combinations: casual+normal, casual+cautious, technical+normal, technical+cautious
+  
+- **Vui vẻ NHƯNG không bịa** - kết hợp tone casual với behavior cautious
+  - Trước: "Tôi không có thông tin cụ thể..." (đúng nhưng khô khan)
+  - Sau: "Ôi gu bạn chất đấy! 😄 Nói thật mình không rành, thử hỏi thư viện đi!"
+
+### Changed
+- **persona.yaml** - Cấu trúc mới với `tones:` và `behaviors:` sections
+- **PersonaSelector** - `select()` build persona động từ tone_config + behavior_config
+- **OutputProcessor** - Metadata mới: `tone`, `behavior` thay vì `response_mode`
+- **rules.yaml** - Thêm keywords technical, giảm threshold need_knowledge xuống 0.1
+
+### Improved
+- Tự nhiên hơn khi AI không biết nhưng vẫn vui vẻ
+- Flexible persona system cho future extensions
+- Legacy support cho code cũ (personas section vẫn hoạt động)
+
+### Notes
+- `temperature` chỉ lấy từ tone (đúng về bản chất - temperature = style)
+
+---
+
 ## [1.2.0] - 2026-02-01
 
 ### Changed - **Length Management Philosophy** (BREAKING: Behavioral change)

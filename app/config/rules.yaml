@@ -31,6 +31,17 @@ context_detection:
       - "lỗi"
       - "làm sao"
       - "giải thích"
+      - "machine learning"
+      - "AI"
+      - "algorithm"
+      - "API"
+      - "database"
+      - "programming"
+      - "python"
+      - "javascript"
+      - "function"
+      - "class"
+      - "method"
     confidence_threshold: 0.6
     
   need_knowledge:
@@ -40,7 +51,16 @@ context_detection:
       - "tài liệu"
       - "kinh nghiệm"
       - "câu nói"
-    confidence_threshold: 0.5
+      - "tìm"
+      - "gợi ý"
+      - "recommend"
+      - "đề xuất"
+      - "hay"
+      - "nên đọc"
+      - "nên xem"
+      - "thông tin về"
+      - "cho tôi biết về"
+    confidence_threshold: 0.1
 
 # Response validation
 output_rules:
