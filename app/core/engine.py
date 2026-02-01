@@ -221,18 +221,19 @@ class AICore:
             warnings_count=len(processed["warnings"])
         )
         
+        # Merge processed metadata with additional info
+        final_metadata = {
+            **processed["metadata"],  # tone, behavior, context_type, signal_strength, persona_used, etc.
+            "context": context,  # Full context object for debugging
+            "model": model_response["model"],
+            "usage": model_response["usage"],
+            "valid": processed["valid"],
+            "warnings": processed["warnings"]
+        }
+        
         return {
             "response": processed["content"],
-            "metadata": {
-                "persona": persona["name"],
-                "context": context,
-                "valid": processed["valid"],
-                "warnings": processed["warnings"],
-                "model_info": {
-                    "model": model_response["model"],
-                    "usage": model_response["usage"]
-                }
-            },
+            "metadata": final_metadata,
             "session_id": session.id
         }
     

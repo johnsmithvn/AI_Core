@@ -4,6 +4,26 @@ All notable changes to AI Core will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-02-01
+
+### Removed
+- **`persona` legacy field** từ engine.py metadata
+  - Trước: cả `persona_used` và `persona` đều có cùng giá trị (redundant)
+  - Sau: chỉ còn `persona_used` từ output.py
+  - UI code vẫn hoạt động nhờ fallback: `metadata.get("persona_used") or metadata.get("persona")`
+
+### Changed
+- **Simplified metadata structure** trong engine.py
+  - Bỏ nested `model_info`, giờ `model` và `usage` ở top-level
+  - All v2.1 fields (`signal_strength`, `context_clarity`, `needs_knowledge`) đều ở top-level
+
+### Fixed
+- **Vietnamese keywords** thêm vào rules.yaml
+  - "lập trình", "viết code", "học code", "dạy code", "hướng dẫn", "cách làm", "tutorial"
+  - Fix bug: "Hãy dạy tôi về lập trình" giờ detect đúng context technical
+
+---
+
 ## [2.1.0] - 2026-02-01
 
 ### ⚠️ BREAKING CHANGES - Response Structure (UI cần cập nhật)

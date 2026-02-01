@@ -2,6 +2,26 @@
 
 ## ✅ HOÀN THÀNH
 
+### v2.1.1 - Cleanup & Vietnamese Keywords (2026-02-01)
+
+1. ✅ Bỏ `persona` legacy field từ engine.py
+   - Chỉ còn `persona_used` từ output.py
+   - Giảm redundancy trong metadata
+
+2. ✅ Simplified metadata structure
+   - `model` và `usage` ở top-level (không còn nested `model_info`)
+   - All v2.1 fields ở top-level cho UI dễ extract
+
+3. ✅ Thêm Vietnamese keywords vào rules.yaml
+   - "lập trình", "viết code", "học code", "dạy code"
+   - "hướng dẫn", "cách làm", "tutorial"
+
+4. ✅ Code review & cleanup
+   - Kiểm tra consistency giữa engine, output, context, persona
+   - Xác nhận không còn outdated code
+
+---
+
 ### v2.1.0 - Signal Strength & Context Clarity (2026-02-01)
 
 1. ✅ Đổi tên `confidence` → `signal_strength`

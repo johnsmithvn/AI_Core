@@ -52,6 +52,14 @@ context_detection:
       - "async"
       - "await"
       - "framework"
+      # Vietnamese keywords
+      - "lập trình"
+      - "viết code"
+      - "học code"
+      - "dạy code"
+      - "hướng dẫn"
+      - "cách làm"
+      - "tutorial"
     confidence_threshold: 0.6
     
   need_knowledge:
