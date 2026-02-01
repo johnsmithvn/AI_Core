@@ -142,12 +142,12 @@ class ContextAnalyzer:
         Returns:
             (should_refuse: bool, reason: str)
         """
-        # Nếu thiếu context và hỏi về kiến thức cụ thể
-        if context.get("needs_knowledge") and context.get("confidence", 0) < 0.3:
-            return (True, "Bạn cần cung cấp thêm thông tin để tôi hiểu rõ hơn")
-        
-        # Nếu câu hỏi mơ hồ
+        # Nếu câu hỏi quá ngắn (< 5 chars)
         if len(user_input.strip()) < 5:
             return (True, "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?")
+        
+        # NOTE: Không refuse chỉ vì needs_knowledge + low confidence
+        # Low confidence là do thuật toán score, không phải câu hỏi mơ hồ
+        # AI sẽ tự xử lý qua behavior "cautious" - thừa nhận không biết
         
         return (False, "")

@@ -184,7 +184,54 @@
 
 ## 🔄 ĐANG LÀM
 
-Không có
+### GIAI ĐOẠN 2: Stabilize + Test (BẮT BUỘC TRƯỚC KHI TIẾN TIẾP)
+
+**Mục tiêu**: Đảm bảo Decision Architecture ổn định
+
+- [ ] Test 20-50 hội thoại thật đa dạng:
+  - [ ] Casual chat (đùa, chào hỏi)
+  - [ ] Technical questions (code, debug)
+  - [ ] Knowledge questions (sách, tài liệu)
+  - [ ] Edge cases (câu ngắn, nhiều ý)
+- [ ] Ghi nhận lỗi lệch tone / behavior
+- [ ] Tạo test cases YAML cho các scenario quan trọng
+- [ ] Đo metric:
+  - [ ] % lệch tone (vui → nghiêm hoặc ngược lại)
+  - [ ] % bịa kiến thức khi không biết
+  - [ ] % từ chối đúng cách
+
+**Chỉ sửa**:
+- rules.yaml (keywords, thresholds)
+- persona.yaml (tone hints)
+- context.py (detection logic)
+
+**KHÔNG làm**: LoRA, RAG, fine-tune
+
+---
+
+## 📋 GIAI ĐOẠN 3+: MỞ RỘNG (SAU KHI STABILIZE)
+
+### ❌ CHECKLIST: Khi nào KHÔNG ĐƯỢC thêm LoRA
+
+Nếu **BẤT KỲ điều nào** đúng → **CHƯA SẴN SÀNG**:
+
+- [ ] Prompt vẫn thay đổi mỗi ngày
+- [ ] Chưa test đủ 20-30 hội thoại thật
+- [ ] Lệch behavior (bịa, overclaim) chứ không phải style
+- [ ] Muốn "AI thông minh hơn" (LoRA không làm được)
+- [ ] Chưa có metric đo lệch tone/behavior
+
+### ✅ CHECKLIST: Khi nào MỚI ĐƯỢC thêm LoRA
+
+Chỉ khi **TẤT CẢ** đúng:
+
+- [ ] Prompt gần như ổn định (không sửa > 1 tuần)
+- [ ] Decision logic không đổi nữa
+- [ ] Lệch chủ yếu là style/giọng/độ nhất quán
+- [ ] Có ví dụ tốt/xấu để train
+- [ ] Muốn giảm prompt length / latency
+
+---
 
 ## 📋 SẮP LÀM (OPTIONAL - MỞ RỘNG)
 
@@ -202,6 +249,188 @@ Những phần này KHÔNG bắt buộc, có thể làm sau:
 38. A/B testing framework
 39. Fine-tuning pipeline
 
+---
+
+## 🚀 ROADMAP: NÂNG CẤP CONTEXT DETECTION
+
+### Hiện tại: **Rule-based** (v2.0.0)
+
+```
+Keywords → Score → Threshold → Tone + Behavior
+```
+
+| Ưu điểm | Nhược điểm |
+|---------|------------|
+| ⭐ Đơn giản, nhanh (<1ms) | ❌ Không hiểu semantic |
+| ⭐ Predictable, dễ debug | ❌ Phải maintain keywords |
+| ⭐ Không cần model thêm | ❌ Miss edge cases |
+
+---
+
+### Phase 2: **Embedding-based Detection** ⭐⭐⭐
+
+```python
+# Dùng embedding model để detect context
+user_embedding = embed("tìm sách hay về AI")
+casual_anchor = embed("chat vui, đùa giỡn, hỏi thăm")
+technical_anchor = embed("code, debug, lỗi, programming")
+
+# Cosine similarity → chọn context gần nhất
+context_type = argmax([cos_sim(user, casual), cos_sim(user, technical)])
+```
+
+**Khi nào dùng:**
+- Rule-based confidence < 0.5 → fallback to embedding
+
+**Ưu điểm:**
+- Hiểu semantic ("tìm sách" ≈ "recommend book")
+- Không cần maintain keywords
+- Latency thấp (10-50ms với local embedding)
+
+**Cần:**
+- Embedding model (sentence-transformers, ~400MB)
+- Pre-compute anchor embeddings
+
+**Priority:** ⭐⭐⭐ HIGH - Cải thiện đáng kể với effort vừa phải
+
+---
+
+### Phase 3: **LLM-as-Router** ⭐⭐⭐⭐
+
+```python
+# Dùng LLM nhỏ/nhanh để classify
+router_prompt = """
+Phân loại câu hỏi sau thành JSON:
+{
+  "tone": "casual" | "technical",
+  "needs_knowledge": true | false,
+  "confidence": 0.0-1.0
+}
+
+Input: "{user_input}"
+"""
+context = small_llm(router_prompt)  # Gemma-2b, Phi-3-mini
+response = main_llm(user_input, context)
+```
+
+**Khi nào dùng:**
+- Edge cases mà rule + embedding không handle được
+- Câu hỏi phức tạp, nhiều ý
+
+**Ưu điểm:**
+- Hiểu context phức tạp
+- Flexible, thêm category không cần code mới
+- OpenAI, Anthropic dùng cách này internally
+
+**Nhược điểm:**
+- Thêm 1 LLM call (100-500ms latency)
+- Cost tăng (nhưng dùng model nhỏ thì rẻ)
+
+**Priority:** ⭐⭐⭐ MEDIUM - Cho production scale
+
+---
+
+### Phase 4: **Constitutional AI** ⭐⭐⭐⭐⭐
+
+```python
+# Step 1: Generate initial response
+initial = llm(user_input)
+
+# Step 2: Self-critique theo principles
+critique = llm(f"""
+Đánh giá response theo các nguyên tắc:
+1. Có bịa kiến thức không?
+2. Có thừa nhận không biết khi cần không?
+3. Giọng điệu có phù hợp context không?
+
+Response: {initial}
+""")
+
+# Step 3: Revise based on critique
+final = llm(f"Sửa lại: {initial}\nDựa trên: {critique}")
+```
+
+**Ưu điểm:**
+- Self-improving
+- Tuân thủ principles tốt nhất
+- Anthropic Claude dùng cách này
+
+**Nhược điểm:**
+- 3x LLM calls (expensive)
+- High latency (1-3 seconds total)
+
+**Priority:** ⭐⭐ LOW - Cho high-value use cases
+
+---
+
+### Phase 5: **Multi-Agent Architecture** ⭐⭐⭐⭐⭐
+
+```
+User Input
+    ↓
+┌─────────────────┐
+│  Router Agent   │  ← Quyết định gửi cho agent nào
+└────────┬────────┘
+         ↓
+    ┌────┴────┬────────┐
+    ↓         ↓        ↓
+┌───────┐ ┌───────┐ ┌───────┐
+│Casual │ │Expert │ │Search │
+│ Agent │ │ Agent │ │ Agent │
+└───────┘ └───────┘ └───────┘
+```
+
+**Ưu điểm:**
+- Modular, mỗi agent chuyên biệt
+- Dễ scale và maintain
+- Microsoft AutoGen, LangChain dùng cách này
+
+**Nhược điểm:**
+- Complex architecture
+- Coordination overhead
+
+**Priority:** ⭐ FUTURE - Khi cần multi-domain expertise
+
+---
+
+### Hybrid Approach (Khuyến nghị cho Production)
+
+```python
+def detect_context(user_input: str) -> Context:
+    # Fast path: Rules (< 1ms)
+    rule_result = rule_based_detect(user_input)
+    if rule_result.confidence > 0.7:
+        return rule_result
+    
+    # Medium path: Embedding (10-50ms)
+    embed_result = embedding_detect(user_input)
+    if embed_result.confidence > 0.7:
+        return embed_result
+    
+    # Slow path: LLM Router (100-500ms) - only for edge cases
+    return llm_router_detect(user_input)
+```
+
+**Lợi ích:**
+- 90% requests: <1ms (rule-based)
+- 9% requests: <50ms (embedding)
+- 1% requests: <500ms (LLM router)
+- Best balance of speed vs accuracy
+
+---
+
+### So sánh tổng quan
+
+| Approach | Complexity | Accuracy | Latency | Cost | Priority |
+|----------|------------|----------|---------|------|----------|
+| **Rule-based** ✅ | ⭐ | ⭐⭐ | <1ms | Free | Done |
+| **Embedding** | ⭐⭐ | ⭐⭐⭐ | 10-50ms | Low | HIGH |
+| **LLM Router** | ⭐⭐⭐ | ⭐⭐⭐⭐ | 100-500ms | Medium | MEDIUM |
+| **Constitutional** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 1-3s | High | LOW |
+| **Multi-Agent** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Variable | High | FUTURE |
+
+---
+
 ## 🎉 PROJECT COMPLETION STATUS
 
 ### ✅ CORE PROJECT: 100% COMPLETE
@@ -212,38 +441,31 @@ Những phần này KHÔNG bắt buộc, có thể làm sau:
 **Tests**: 4/4 passed  
 **Documentation**: Complete  
 
-**Latest Updates (v1.1.2)**:
+**Latest Updates (v2.0.0)**:
+- ✅ Tone + Behavior Architecture (thay thế legacy personas)
+- ✅ Casual + Cautious = Vui vẻ nhưng không bịa
+- ✅ Fix should_refuse logic (không refuse chỉ vì low confidence)
+- ✅ Xóa legacy personas section
+- ✅ Roadmap nâng cấp context detection
+
+**v1.2.0**:
 - ✅ OpenAI API 100% compliance
 - ✅ Enhanced error handling (HTTPStatusError, TimeoutException, ConnectError)
 - ✅ Response validation trước khi parse
-- ✅ Local model improvements (60s timeout, better errors)
+- ✅ Local model improvements (300s timeout, auto-detect model)
 
 **Delivered**:
 - ✅ AI Core engine với 9-step pipeline
-- ✅ 3 personas (casual, technical, cautious)
-- ✅ Context analyzer
+- ✅ Tone + Behavior system (2x2 = 4 combinations)
+- ✅ Context analyzer (rule-based)
 - ✅ Memory system (short + long term)
 - ✅ Model abstraction (4 providers)
 - ✅ Tool system foundation
 - ✅ REST API (7 endpoints)
 - ✅ Structured logging với request tracing
-- ✅ Complete documentation (1000+ lines analysis)
-- ✅ Working examples
-
-**Logging Features**:
-- ✅ Request ID tracing throughout pipeline
-- ✅ JSON format cho production
-- ✅ Pretty console format cho dev
-- ✅ File logging (data/app.log)
-- ✅ 10+ log points tracking:
-  * process_start, session_created
-  * context_analyzed, persona_selected
-  * retrieving_knowledge, knowledge_retrieved
-  * calling_model, model_response_received
-  * honesty_issue (warning level)
-  * process_complete, cleanup_complete
+- ✅ Complete documentation
 
 **Status**: 🚀 **PRODUCTION READY**
 
 ---
-Last updated: 2026-01-25 13:00
+Last updated: 2026-02-01
