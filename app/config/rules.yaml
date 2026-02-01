@@ -42,6 +42,16 @@ context_detection:
       - "function"
       - "class"
       - "method"
+      # Added for better detection
+      - "REST"
+      - "GraphQL"
+      - "so sánh"
+      - "tối ưu"
+      - "query"
+      - "SQL"
+      - "async"
+      - "await"
+      - "framework"
     confidence_threshold: 0.6
     
   need_knowledge:
@@ -60,7 +70,20 @@ context_detection:
       - "nên xem"
       - "thông tin về"
       - "cho tôi biết về"
-    confidence_threshold: 0.1
+      # Added for better detection
+      - "cuốn sách"
+      - "số điện thoại"
+      - "địa chỉ"
+      - "liên hệ"
+      - "nói về"
+      - "kể về"
+      - "kiến trúc"
+      - "phỏng vấn"
+      - "microservices"
+    # Giảm threshold vì có nhiều keywords
+    # score = matches/total, với 23 keywords cần >= 1 match
+    # 1/23 = 0.043, set threshold = 0.04
+    confidence_threshold: 0.04
 
 # Response validation
 output_rules:

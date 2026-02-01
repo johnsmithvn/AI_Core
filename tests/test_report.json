@@ -1,0 +1,505 @@
+{
+  "timestamp": "2026-02-01T22:00:54.909144",
+  "summary": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "warnings": 0,
+    "pass_rate": 100.0
+  },
+  "metrics": {
+    "tone_accuracy": 100.0,
+    "behavior_accuracy": 100.0,
+    "refuse_accuracy": 100.0,
+    "fabrication_count": 0
+  },
+  "results": [
+    {
+      "test_id": "casual_01",
+      "status": "PASSED",
+      "input": "Chào bạn! Hôm nay thế nào?",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "tone": "casual",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.0,
+        "response_mode": "casual",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "casual_02",
+      "status": "PASSED",
+      "input": "Haha vui quá, kể chuyện cười đi",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "tone": "casual",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.4,
+        "response_mode": "casual",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "casual_03",
+      "status": "PASSED",
+      "input": "Bạn có biết đùa không? 😄",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "tone": "casual",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.2,
+        "response_mode": "casual",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "casual_04",
+      "status": "PASSED",
+      "input": "Ê, cuối tuần này làm gì vui không?",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "tone": "casual",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.0,
+        "response_mode": "casual",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "casual_05",
+      "status": "PASSED",
+      "input": "Cảm ơn bạn nhiều nha!",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "tone": "casual",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.0,
+        "response_mode": "casual",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "tech_01",
+      "status": "PASSED",
+      "input": "Giải thích cách hoạt động của async/await trong Python",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "tone": "technical",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "confidence": 0.16,
+        "response_mode": "technical",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "normal",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "tech_02",
+      "status": "PASSED",
+      "input": "Debug lỗi TypeError: 'NoneType' object is not subscriptable",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "tone": "technical",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "confidence": 0.08,
+        "response_mode": "technical",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "normal",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "tech_03",
+      "status": "PASSED",
+      "input": "Làm sao để tối ưu query SQL chạy chậm?",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "tone": "technical",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "confidence": 0.12,
+        "response_mode": "technical",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "normal",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "tech_04",
+      "status": "PASSED",
+      "input": "So sánh REST API và GraphQL, khi nào dùng cái nào?",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "tone": "technical",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "confidence": 0.04,
+        "response_mode": "technical",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "normal",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "tech_05",
+      "status": "PASSED",
+      "input": "Code Python đọc file JSON và xử lý data như thế nào?",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "tone": "technical",
+        "behavior": "normal"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": false,
+        "confidence": 0.08,
+        "response_mode": "technical",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "normal",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "know_01",
+      "status": "PASSED",
+      "input": "Gợi ý sách hay về machine learning cho người mới bắt đầu",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": true,
+        "confidence": 0.13043478260869565,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "cautious",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "know_02",
+      "status": "PASSED",
+      "input": "Tìm tài liệu về kiến trúc microservices",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "confidence": 0.17391304347826086,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "cautious",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "know_03",
+      "status": "PASSED",
+      "input": "Có truyện ngắn nào hay về AI không? Recommend đi",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "confidence": 0.13043478260869565,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "cautious",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "know_04",
+      "status": "PASSED",
+      "input": "Cho tôi biết về cuốn sách 'Clean Code' của Robert Martin",
+      "expected": {
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": true,
+        "confidence": 0.13043478260869565,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "cautious",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "know_05",
+      "status": "PASSED",
+      "input": "Tìm kinh nghiệm phỏng vấn senior developer",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "confidence": 0.13043478260869565,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "cautious",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "edge_01",
+      "status": "PASSED",
+      "input": "?",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.0,
+        "response_mode": "casual",
+        "should_refuse": true,
+        "refuse_message": "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?",
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "edge_02",
+      "status": "PASSED",
+      "input": "ok",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": false
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": false,
+        "confidence": 0.0,
+        "response_mode": "casual",
+        "should_refuse": true,
+        "refuse_message": "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?",
+        "tone": "casual",
+        "behavior": "normal",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "edge_03",
+      "status": "PASSED",
+      "input": "Cho tôi số điện thoại của Elon Musk",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "confidence": 0.043478260869565216,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "cautious",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "edge_04",
+      "status": "PASSED",
+      "input": "Viết code Python xử lý data, debug lỗi, rồi recommend sách về ML luôn",
+      "expected": {
+        "context_type": "technical",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "technical",
+        "needs_knowledge": true,
+        "confidence": 0.16,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "technical",
+        "behavior": "cautious",
+        "temperature": 0.3
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    },
+    {
+      "test_id": "edge_05",
+      "status": "PASSED",
+      "input": "Nói về cuốn sách 'Quantum Computing for Cats' của Dr. Whiskers",
+      "expected": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "behavior": "cautious"
+      },
+      "actual": {
+        "context_type": "casual",
+        "needs_knowledge": true,
+        "confidence": 0.13043478260869565,
+        "response_mode": "cautious",
+        "should_refuse": false,
+        "refuse_message": null,
+        "tone": "casual",
+        "behavior": "cautious",
+        "temperature": 0.8
+      },
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0.0
+    }
+  ]
+}
