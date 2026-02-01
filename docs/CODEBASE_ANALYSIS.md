@@ -70,7 +70,7 @@ AI Core là một **Conversational AI Engine** với khả năng:
   1. Get/create session
   2. Load history
   3. Analyze context
-  4. Check refusal
+  4. **Check refusal** → Nếu câu hỏi < 5 ký tự hoặc thiếu context → Return refuse message (KHÔNG GỌI LLM)
   5. Select persona
   6. Retrieve knowledge
   7. Build prompt
@@ -111,6 +111,11 @@ Input: "Debug lỗi Python"
 2. **technical**: Hỏi kỹ thuật, code
 3. **cautious**: Hỏi kiến thức, cần thận trọng
 
+**Refusal Logic** (method `should_refuse()`):
+- ⚠️ **Câu hỏi quá ngắn** (`len(input) < 5`): Trả về cứng "Câu hỏi hơi ngắn, bạn hỏi cụ thể hơn được không?" → **KHÔNG GỌI LLM**
+- **Thiếu context cho kiến thức** (`needs_knowledge=True` + `confidence < 0.3`): Yêu cầu thêm thông tin → **KHÔNG GỌI LLM**
+- Nếu refuse → Response trả về với `metadata.refused=True`, `model=null`, `usage=null`
+
 **Config**: `app/config/rules.yaml`
 
 **Quan trọng**: ⭐⭐⭐⭐ (Xác định giọng điệu response)
@@ -138,15 +143,17 @@ Input: "Debug lỗi Python"
 
 **Quan trọng**: ⭐⭐⭐⭐ (Xác định personality)
 
-#### prompt.py (110 lines)
+#### prompt.py (150 lines)
 **Vai trò**: Prompt builder - xây prompt hoàn chỉnh
+
+**⚠️ BUG FIX (2026-01-27)**: Thêm `_filter_history_for_alternating()` để đảm bảo messages luôn xen kẽ user/assistant, tránh lỗi "Conversation roles must alternate" từ LM Studio/Gemma models.
 
 **Components**:
 1. **Base System Prompt**: Core principles (hard-coded)
 2. **Persona Additions**: Dynamic từ persona config
 3. **Context Info**: Warnings về confidence
 4. **Knowledge**: Retrieved từ long-term memory
-5. **History**: Recent conversation
+5. **History**: Recent conversation (đã filter để đảm bảo pattern alternating)
 6. **Current Input**: User message
 
 **Format**: OpenAI chat format
